@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("MYCEhyphaXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+declare_id!("9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5");
 
 /// Mycelium Protocol — Hypha Program
 /// Programmable IP Licensing on Solana

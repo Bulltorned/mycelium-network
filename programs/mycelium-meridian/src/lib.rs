@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("MYCEmeridXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+declare_id!("7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc");
 
 /// Mycelium Protocol — Meridian Program
 /// WIPO Evidence Module on Solana

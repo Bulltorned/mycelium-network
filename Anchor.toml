@@ -1,12 +1,14 @@
+[toolchain]
+
 [features]
-seeds = false
+resolution = true
 skip-lint = false
 
 [programs.devnet]
-mycelium_spore = "MYCEsporeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-mycelium_hypha = "MYCEhyphaXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-mycelium_rhizome = "MYCErhizoXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-mycelium_meridian = "MYCEmeridXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+mycelium_hypha = "9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5"
+mycelium_meridian = "7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc"
+mycelium_rhizome = "9HRqJ3toCnSBB3JQiMdCmoLg6qW5a6PdpwdHypRVBLNu"
+mycelium_spore = "7UkHLH3qUNxAn9ixVvDckUnqVmNJazppXcDGZ57JtXe"
 
 [registry]
 url = "https://api.apr.dev"

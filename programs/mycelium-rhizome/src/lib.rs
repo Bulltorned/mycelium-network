@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("MYCErhizoXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+declare_id!("9HRqJ3toCnSBB3JQiMdCmoLg6qW5a6PdpwdHypRVBLNu");
 
 /// Mycelium Protocol — Rhizome Program
 /// Royalty Distribution Engine on Solana
