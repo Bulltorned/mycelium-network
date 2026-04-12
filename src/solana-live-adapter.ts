@@ -2,10 +2,11 @@
  * Mycelium Protocol — Solana Live Adapter
  *
  * Production implementation of SolanaAdapter that talks to real Solana devnet/mainnet.
- * Connects to Anchor programs, Helius for indexing, and provides real on-chain operations.
+ * Connects to Anchor programs via the generated IDL client for type-safe account
+ * fetches and instruction calls. No manual Borsh deserializers.
  *
  * Architecture:
- *   MCP Tool → SolanaLiveAdapter → Anchor Program (Solana RPC)
+ *   MCP Tool → SolanaLiveAdapter → Anchor Program (IDL client → Solana RPC)
  *                                → Helius DAS API (read queries, event parsing)
  *                                → Arweave/Irys (metadata storage)
  *
@@ -21,10 +22,9 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
-  Transaction,
-  sendAndConfirmTransaction,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
+import { Program, AnchorProvider, Wallet } from "@coral-xyz/anchor";
 import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
 import { resolve } from "path";
@@ -56,6 +56,19 @@ import type {
   FileDisputeParams,
 } from "./solana-adapter.js";
 
+// ── IDL imports ────────────────────────────────────────────────────
+// Read IDL JSON at runtime (NodeNext module resolution with resolveJsonModule)
+import { readFileSync as readFileSyncFs } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const sporeIdl = JSON.parse(
+  readFileSyncFs(join(__dirname, "..", "src", "idl", "mycelium_spore.json"), "utf-8")
+);
+
 // ── Program IDs (from Anchor.toml devnet deployment) ────────────────
 
 const PROGRAM_IDS = {
@@ -69,44 +82,7 @@ const PROGRAM_IDS = {
 };
 
 const SEED_IP_ASSET = Buffer.from("ip_asset");
-
-// ── Account data layout constants (matching Anchor struct) ──────────
-// These map to the on-chain IPAsset account layout after deserialization.
-// Anchor uses an 8-byte discriminator prefix.
-
-const ANCHOR_DISCRIMINATOR_SIZE = 8;
-
-// IPAsset field offsets (after discriminator):
-// original_creator: 32 bytes
-// creator: 32 bytes
-// content_hash: 32 bytes
-// perceptual_hash: 32 bytes
-// ip_type: 2 bytes (discriminant + variant)
-// metadata_uri: 4 + up to 128 bytes (Borsh string)
-// registration_slot: 8 bytes (u64)
-// registration_timestamp: 8 bytes (i64)
-// parent_ip: 1 + 32 bytes (Option<Pubkey>)
-// status: 2 bytes
-// license_count: 4 bytes (u32)
-// dispute_count: 4 bytes (u32)
-// version: 2 bytes (u16)
-// bump: 1 byte
-
-const IP_TYPE_MAP: IPType[] = [
-  "literary_work",
-  "visual_art",
-  "music",
-  "software",
-  "character_ip",
-  "meme",
-  "video",
-  "ai_generated",
-  "traditional_knowledge",
-  "dataset",
-  "brand_mark",
-];
-
-const IP_STATUS_MAP: IPStatus[] = ["active", "disputed", "suspended", "revoked"];
+const SEED_CONTENT_HASH = Buffer.from("content_hash_index");
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -120,6 +96,15 @@ function findIPAssetPDA(
   );
 }
 
+function findContentHashRegistryPDA(
+  contentHash: Buffer
+): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [SEED_CONTENT_HASH, contentHash],
+    PROGRAM_IDS.spore
+  );
+}
+
 function hexToBytes(hex: string): Buffer {
   return Buffer.from(hex, "hex");
 }
@@ -128,105 +113,28 @@ function bytesToHex(bytes: Uint8Array | number[]): string {
   return Buffer.from(bytes).toString("hex");
 }
 
-/**
- * Deserialize an IPAsset from raw account data (Anchor layout).
- * This is a manual deserializer — in production, use the generated Anchor IDL types.
- */
-function deserializeIPAsset(
-  pubkey: PublicKey,
-  data: Buffer
-): IPAsset | null {
-  if (data.length < ANCHOR_DISCRIMINATOR_SIZE + 32 + 32 + 32 + 32) {
-    return null;
-  }
+// ── IP Type mapping (Anchor camelCase enum key → protocol snake_case) ──
 
-  let offset = ANCHOR_DISCRIMINATOR_SIZE;
+const ANCHOR_TO_IP_TYPE: Record<string, IPType> = {
+  literaryWork: "literary_work",
+  visualArt: "visual_art",
+  music: "music",
+  software: "software",
+  characterIp: "character_ip",
+  meme: "meme",
+  video: "video",
+  aiGenerated: "ai_generated",
+  traditionalKnowledge: "traditional_knowledge",
+  dataset: "dataset",
+  brandMark: "brand_mark",
+};
 
-  // original_creator: Pubkey (32 bytes)
-  const originalCreator = new PublicKey(data.subarray(offset, offset + 32));
-  offset += 32;
-
-  // creator: Pubkey (32 bytes)
-  const creator = new PublicKey(data.subarray(offset, offset + 32));
-  offset += 32;
-
-  // content_hash: [u8; 32]
-  const contentHash = data.subarray(offset, offset + 32);
-  offset += 32;
-
-  // perceptual_hash: [u8; 32]
-  const perceptualHash = data.subarray(offset, offset + 32);
-  offset += 32;
-
-  // ip_type: enum (1 byte discriminant)
-  const ipTypeIdx = data[offset];
-  offset += 1;
-  // Skip variant padding byte
-  offset += 1;
-
-  // metadata_uri: Borsh string (4 byte length + data)
-  const uriLen = data.readUInt32LE(offset);
-  offset += 4;
-  const metadataUri = data.subarray(offset, offset + uriLen).toString("utf-8");
-  offset += uriLen;
-  // Advance past the allocated max space (128 bytes total for string data)
-  // The remaining padding bytes after the string data
-  const uriPadding = 128 - uriLen;
-  if (uriPadding > 0) offset += uriPadding;
-
-  // registration_slot: u64 (8 bytes, little-endian)
-  const registrationSlot = Number(data.readBigUInt64LE(offset));
-  offset += 8;
-
-  // registration_timestamp: i64 (8 bytes, little-endian)
-  const registrationTimestamp = Number(data.readBigInt64LE(offset));
-  offset += 8;
-
-  // parent_ip: Option<Pubkey> (1 byte tag + 32 bytes if Some)
-  const hasParent = data[offset] === 1;
-  offset += 1;
-  let parentIp: string | null = null;
-  if (hasParent) {
-    parentIp = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-  }
-  offset += 32; // Always advance 32 regardless of Some/None
-
-  // status: enum (1 byte discriminant)
-  const statusIdx = data[offset];
-  offset += 1;
-  offset += 1; // padding
-
-  // license_count: u32
-  const licenseCount = data.readUInt32LE(offset);
-  offset += 4;
-
-  // dispute_count: u32
-  const disputeCount = data.readUInt32LE(offset);
-  offset += 4;
-
-  // version: u16
-  const version = data.readUInt16LE(offset);
-  offset += 2;
-
-  return {
-    pubkey: pubkey.toBase58(),
-    originalCreator: originalCreator.toBase58(),
-    creator: creator.toBase58(),
-    contentHash: bytesToHex(contentHash),
-    perceptualHash: bytesToHex(perceptualHash),
-    ipType: IP_TYPE_MAP[ipTypeIdx] ?? "literary_work",
-    metadataUri,
-    registrationSlot,
-    registrationTimestamp,
-    parentIp,
-    status: IP_STATUS_MAP[statusIdx] ?? "active",
-    licenseCount,
-    disputeCount,
-    version,
-  };
-}
-
-// ── IP Type to Anchor enum variant ──────────────────────────────────
+const ANCHOR_TO_IP_STATUS: Record<string, IPStatus> = {
+  active: "active",
+  disputed: "disputed",
+  suspended: "suspended",
+  revoked: "revoked",
+};
 
 function ipTypeToAnchor(ipType: IPType): Record<string, Record<string, never>> {
   const map: Record<IPType, string> = {
@@ -245,6 +153,42 @@ function ipTypeToAnchor(ipType: IPType): Record<string, Record<string, never>> {
   return { [map[ipType]]: {} };
 }
 
+/**
+ * Extract enum key from Anchor's { variantName: {} } representation.
+ */
+function extractEnumKey(enumObj: Record<string, unknown>): string {
+  return Object.keys(enumObj)[0];
+}
+
+/**
+ * Convert an Anchor-fetched IPAsset account to the protocol's IPAsset type.
+ */
+function anchorAccountToIPAsset(
+  pubkey: PublicKey,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  account: any
+): IPAsset {
+  const ipTypeKey = extractEnumKey(account.ipType);
+  const statusKey = extractEnumKey(account.status);
+
+  return {
+    pubkey: pubkey.toBase58(),
+    originalCreator: account.originalCreator.toBase58(),
+    creator: account.creator.toBase58(),
+    contentHash: bytesToHex(account.contentHash),
+    perceptualHash: bytesToHex(account.perceptualHash),
+    ipType: ANCHOR_TO_IP_TYPE[ipTypeKey] ?? "literary_work",
+    metadataUri: account.metadataUri,
+    registrationSlot: account.registrationSlot.toNumber(),
+    registrationTimestamp: account.registrationTimestamp.toNumber(),
+    parentIp: account.parentIp ? account.parentIp.toBase58() : null,
+    status: ANCHOR_TO_IP_STATUS[statusKey] ?? "active",
+    licenseCount: account.licenseCount,
+    disputeCount: account.disputeCount,
+    version: account.version,
+  };
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 //  SolanaLiveAdapter
 // ═══════════════════════════════════════════════════════════════════════
@@ -253,6 +197,8 @@ export class SolanaLiveAdapter implements SolanaAdapter {
   private connection: Connection;
   private payer: Keypair;
   private heliusApiKey: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private sporeProgram: Program<any>;
 
   // In-memory cache for agent wallets (production: use a database)
   private agentWallets: Map<string, AgentWallet> = new Map();
@@ -298,6 +244,13 @@ export class SolanaLiveAdapter implements SolanaAdapter {
     this.connection = new Connection(rpcUrl, "confirmed");
     this.heliusApiKey = opts?.heliusApiKey ?? process.env.HELIUS_API_KEY ?? null;
 
+    // ── Initialize Anchor Program for typed account fetches ─────────
+    const wallet = new Wallet(this.payer);
+    const provider = new AnchorProvider(this.connection, wallet, {
+      commitment: "confirmed",
+    });
+    this.sporeProgram = new Program(sporeIdl, provider);
+
     console.error(`[SolanaLiveAdapter] Connected to ${rpcUrl}`);
     console.error(`[SolanaLiveAdapter] Payer: ${this.payer.publicKey.toBase58()}`);
     console.error(`[SolanaLiveAdapter] Spore program: ${PROGRAM_IDS.spore.toBase58()}`);
@@ -310,65 +263,37 @@ export class SolanaLiveAdapter implements SolanaAdapter {
     const perceptualHashBytes = hexToBytes(params.perceptualHash);
     const creatorPubkey = this.payer.publicKey;
 
-    const [ipAssetPDA, bump] = findIPAssetPDA(creatorPubkey, contentHashBytes);
+    const [ipAssetPDA] = findIPAssetPDA(creatorPubkey, contentHashBytes);
+    const [contentHashRegistryPDA] = findContentHashRegistryPDA(contentHashBytes);
 
-    // Build the Anchor instruction manually.
-    // In production with full Anchor client, this would use program.methods.registerIp(...)
-    // For now, we use the raw instruction builder pattern.
+    // Build and send instruction via Anchor IDL client
+    // RegisterIPParams does not include WIPO fields yet -- use defaults.
+    // These will be added to the MCP tool schema in a future plan.
+    const txSignature = await this.sporeProgram.methods
+      .registerIp(
+        Array.from(contentHashBytes) as unknown as number[],
+        Array.from(perceptualHashBytes) as unknown as number[],
+        ipTypeToAnchor(params.ipType),
+        params.metadataUri,
+        null, // niceClass: Option<u8> = None
+        null, // berneCategory: Option<u8> = None
+        [0, 0], // countryOfOrigin: [u8;2] = default
+        null, // firstUseDate: Option<i64> = None
+      )
+      .accounts({
+        ipAsset: ipAssetPDA,
+        contentHashRegistry: contentHashRegistryPDA,
+        creator: creatorPubkey,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
 
-    // Anchor instruction discriminator for register_ip:
-    // SHA-256("global:register_ip")[0..8]
-    const discriminator = Buffer.from([
-      0x47, 0x97, 0x6c, 0x5c, 0x87, 0x16, 0xad, 0x3f,
-    ]);
-
-    // Encode instruction data:
-    // discriminator (8) + content_hash (32) + perceptual_hash (32) +
-    // ip_type (1) + metadata_uri (4 + len)
-    const ipTypeIndex = IP_TYPE_MAP.indexOf(params.ipType);
-    const uriBytes = Buffer.from(params.metadataUri, "utf-8");
-    const uriBytesLen = Buffer.alloc(4);
-    uriBytesLen.writeUInt32LE(uriBytes.length);
-
-    const instructionData = Buffer.concat([
-      discriminator,
-      contentHashBytes,
-      perceptualHashBytes,
-      Buffer.from([ipTypeIndex]),
-      uriBytesLen,
-      uriBytes,
-    ]);
-
-    const instruction = {
-      programId: PROGRAM_IDS.spore,
-      keys: [
-        { pubkey: ipAssetPDA, isSigner: false, isWritable: true },
-        { pubkey: creatorPubkey, isSigner: true, isWritable: true },
-        {
-          pubkey: SystemProgram.programId,
-          isSigner: false,
-          isWritable: false,
-        },
-      ],
-      data: instructionData,
-    };
-
-    const tx = new Transaction().add(instruction);
-    const txSignature = await sendAndConfirmTransaction(
-      this.connection,
-      tx,
-      [this.payer],
-      { commitment: "confirmed" }
-    );
-
-    // Fetch the created account to return full data
-    const accountInfo = await this.connection.getAccountInfo(ipAssetPDA);
+    // Fetch the created account using the IDL client
     let ipAsset: IPAsset;
-
-    if (accountInfo?.data) {
-      const deserialized = deserializeIPAsset(ipAssetPDA, accountInfo.data as unknown as Buffer);
-      ipAsset = deserialized ?? this.fallbackIPAsset(ipAssetPDA, params);
-    } else {
+    try {
+      const account = await this.sporeProgram.account.ipAsset.fetch(ipAssetPDA);
+      ipAsset = anchorAccountToIPAsset(ipAssetPDA, account);
+    } catch {
       ipAsset = this.fallbackIPAsset(ipAssetPDA, params);
     }
 
@@ -406,48 +331,39 @@ export class SolanaLiveAdapter implements SolanaAdapter {
   async getIPAsset(pubkey: string): Promise<IPAsset | null> {
     try {
       const pk = new PublicKey(pubkey);
-      const accountInfo = await this.connection.getAccountInfo(pk);
-      if (!accountInfo?.data) return null;
-      return deserializeIPAsset(pk, accountInfo.data as unknown as Buffer);
+      const account = await this.sporeProgram.account.ipAsset.fetch(pk);
+      return anchorAccountToIPAsset(pk, account);
     } catch {
       return null;
     }
   }
 
   async searchIP(query: SearchQuery): Promise<SearchResult> {
-    // Strategy: Use getProgramAccounts with filters.
-    // This is expensive on mainnet — production should use Helius indexer + Postgres.
-    // For devnet with small dataset, this is acceptable.
-
-    const filters: Array<
-      | { memcmp: { offset: number; bytes: string } }
-      | { dataSize: number }
-    > = [];
-
-    // Filter by creator if specified (offset: 8 discriminator + 32 original_creator = 40)
-    if (query.creator) {
-      filters.push({
-        memcmp: {
-          offset: ANCHOR_DISCRIMINATOR_SIZE + 32, // skip disc + original_creator
-          bytes: query.creator,
-        },
-      });
-    }
+    // Strategy: Use the Anchor program's account.ipAsset.all() with optional
+    // memcmp filters. For devnet with small dataset, this is acceptable.
+    // Production should use Helius indexer + Postgres.
 
     try {
-      const accounts = await this.connection.getProgramAccounts(
-        PROGRAM_IDS.spore,
-        {
-          filters: filters.length > 0 ? filters : undefined,
-          commitment: "confirmed",
-        }
-      );
+      const filters: Array<{
+        memcmp: { offset: number; bytes: string };
+      }> = [];
 
-      let assets: IPAsset[] = [];
-      for (const { pubkey, account } of accounts) {
-        const asset = deserializeIPAsset(pubkey, account.data as unknown as Buffer);
-        if (asset) assets.push(asset);
+      // Filter by creator if specified
+      // Offset: 8 (discriminator) + 32 (original_creator) = 40 is where creator starts
+      if (query.creator) {
+        filters.push({
+          memcmp: {
+            offset: 8 + 32, // skip discriminator + original_creator
+            bytes: query.creator,
+          },
+        });
       }
+
+      const accounts = await this.sporeProgram.account.ipAsset.all(filters);
+
+      let assets: IPAsset[] = accounts.map((acc) =>
+        anchorAccountToIPAsset(acc.publicKey, acc.account)
+      );
 
       // Apply client-side filters
       if (query.ipType) {

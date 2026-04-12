@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
-import { PublicKey } from "@solana/web3.js";
-import { PROGRAM_IDS } from "@/lib/constants";
+import { PublicKey, Keypair } from "@solana/web3.js";
+import { Program, AnchorProvider, Wallet } from "@coral-xyz/anchor";
 import { shortenPubkey, formatDate, formatSlot, explorerUrl } from "@/lib/format";
 import {
   IP_TYPE_LABELS,
@@ -14,90 +14,39 @@ import {
   IP_STATUS_COLORS,
   IPTypeKey,
   IPStatusKey,
+  extractEnumKey,
   bytesToHex,
   countryCodeToString,
 } from "@/lib/types";
+import sporeIdl from "@/lib/idl/mycelium_spore.json";
 
-function parseAssetFromBuffer(data: Buffer) {
-  try {
-    let offset = 8; // skip discriminator
+/**
+ * Convert an Anchor-fetched IPAsset account to a display object.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function anchorAccountToDisplay(account: any) {
+  const ipType = extractEnumKey<IPTypeKey>(account.ipType);
+  const status = extractEnumKey<IPStatusKey>(account.status);
 
-    const creator = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-    offset += 32;
-
-    const contentHash = bytesToHex(Array.from(data.subarray(offset, offset + 32)));
-    offset += 32;
-
-    const perceptualHash = bytesToHex(Array.from(data.subarray(offset, offset + 32)));
-    offset += 32;
-
-    const ipTypeIndex = data.readUInt8(offset);
-    offset += 1;
-    const ipTypes: IPTypeKey[] = [
-      "literaryWork", "visualArt", "music", "software", "characterIp",
-      "meme", "video", "aiGenerated", "traditionalKnowledge", "dataset", "brandMark",
-    ];
-    const ipType = ipTypes[ipTypeIndex] || "literaryWork";
-
-    const uriLen = data.readUInt32LE(offset);
-    offset += 4;
-    const metadataUri = data.subarray(offset, offset + uriLen).toString("utf-8");
-    offset += uriLen;
-
-    const registrationSlot = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    const registrationTimestamp = Number(data.readBigInt64LE(offset));
-    offset += 8;
-
-    const hasParent = data.readUInt8(offset);
-    offset += 1;
-    let parentIp: string | null = null;
-    if (hasParent) {
-      parentIp = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-      offset += 32;
-    }
-
-    const statusIndex = data.readUInt8(offset);
-    offset += 1;
-    const statuses: IPStatusKey[] = ["active", "disputed", "suspended", "revoked"];
-    const status = statuses[statusIndex] || "active";
-
-    const licenseCount = data.readUInt32LE(offset);
-    offset += 4;
-    const disputeCount = data.readUInt32LE(offset);
-    offset += 4;
-    const version = data.readUInt16LE(offset);
-    offset += 2;
-
-    const hasNiceClass = data.readUInt8(offset);
-    offset += 1;
-    let niceClass: number | null = null;
-    if (hasNiceClass) { niceClass = data.readUInt8(offset); offset += 1; }
-
-    const hasBerne = data.readUInt8(offset);
-    offset += 1;
-    let berneCategory: number | null = null;
-    if (hasBerne) { berneCategory = data.readUInt8(offset); offset += 1; }
-
-    const countryOfOrigin = countryCodeToString(Array.from(data.subarray(offset, offset + 2)));
-    offset += 2;
-
-    const hasFirstUse = data.readUInt8(offset);
-    offset += 1;
-    if (hasFirstUse) offset += 8;
-
-    const wipoAligned = data.readUInt8(offset) === 1;
-
-    return {
-      creator, contentHash, perceptualHash, ipType, metadataUri,
-      registrationSlot, registrationTimestamp, parentIp, status,
-      licenseCount, disputeCount, version, niceClass, berneCategory,
-      countryOfOrigin, wipoAligned,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    creator: account.creator.toBase58(),
+    originalCreator: account.originalCreator.toBase58(),
+    contentHash: bytesToHex(Array.from(account.contentHash)),
+    perceptualHash: bytesToHex(Array.from(account.perceptualHash)),
+    ipType,
+    metadataUri: account.metadataUri,
+    registrationSlot: account.registrationSlot.toNumber(),
+    registrationTimestamp: account.registrationTimestamp.toNumber(),
+    parentIp: account.parentIp ? account.parentIp.toBase58() : null,
+    status,
+    licenseCount: account.licenseCount,
+    disputeCount: account.disputeCount,
+    version: account.version,
+    niceClass: account.niceClass ?? null,
+    berneCategory: account.berneCategory ?? null,
+    countryOfOrigin: countryCodeToString(Array.from(account.countryOfOrigin)),
+    wipoAligned: account.wipoAligned,
+  };
 }
 
 export default function AssetDetailPage() {
@@ -109,9 +58,21 @@ export default function AssetDetailPage() {
     queryKey: ["asset", pubkey],
     queryFn: async () => {
       const pk = new PublicKey(pubkey);
-      const info = await connection.getAccountInfo(pk);
-      if (!info) return null;
-      return parseAssetFromBuffer(info.data as Buffer);
+
+      // Create a read-only Anchor provider with a dummy wallet for account fetches.
+      // No signing is needed -- we only read data.
+      const dummyWallet = new Wallet(Keypair.generate());
+      const provider = new AnchorProvider(connection, dummyWallet, {
+        commitment: "confirmed",
+      });
+      const program = new Program(sporeIdl as never, provider);
+
+      try {
+        const account = await program.account.ipAsset.fetch(pk);
+        return anchorAccountToDisplay(account);
+      } catch {
+        return null;
+      }
     },
     enabled: !!pubkey,
   });
