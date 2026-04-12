@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-02-PLAN.md (IDL Client Migration)
-last_updated: "2026-04-12T12:00:00.000Z"
-last_activity: 2026-04-12 -- Completed plan 01-02
+stopped_at: Paused at 01-03 Task 2 checkpoint (devnet redeployment required)
+last_updated: "2026-04-12T13:02:20.898Z"
+last_activity: 2026-04-12 -- Completed plan 01-02 (IDL Client Migration)
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 22
 ---
 
@@ -52,6 +52,7 @@ Progress: [##........] 22%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01 P01-03 | 5 min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Recent decisions affecting current work:
 - [01-02]: IDL files hand-crafted from Rust source -- must validate against anchor build output when Solana CLI available
 - [01-02]: SCH-06: Wipe devnet accounts after redeployment rather than migrate test data
 - [01-02]: RegisterIPParams lacks WIPO fields (niceClass, berneCategory, etc.) -- defaults used, schema update in future plan
+- [Phase 01]: Spore tests use string-based content hashing for deterministic unique PDAs per test case
+- [Phase 01]: TypeScript types extended with WIPO fields and Rhizome types to fully match on-chain struct field order
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-12
-Stopped at: Completed 01-02-PLAN.md (IDL Client Migration)
+Last session: 2026-04-12T13:02:07.410Z
+Stopped at: Paused at 01-03 Task 2 checkpoint (devnet redeployment required)
 Resume file: None
