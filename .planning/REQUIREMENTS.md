@@ -1,7 +1,7 @@
 # Requirements: Mycelium Protocol
 
 **Defined:** 2026-04-12
-**Core Value:** Any creator, anywhere, can prove they made something first — with evidence that holds up in court.
+**Core Value:** Any creator, anywhere, can prove they made something first -- with evidence that holds up in court.
 
 ## v1 Requirements
 
@@ -113,8 +113,8 @@ Deferred to post-mainnet. Tracked but not in current roadmap.
 
 ### Platform
 
-- **PLT-V2-01**: @solana/web3.js v1 → v2 migration
-- **PLT-V2-02**: Anchor 0.30.1 → 1.x migration (after production track record)
+- **PLT-V2-01**: @solana/web3.js v1 -> v2 migration
+- **PLT-V2-02**: Anchor 0.30.1 -> 1.x migration (after production track record)
 - **PLT-V2-03**: MCP Streamable HTTP transport for production deployment
 - **PLT-V2-04**: CI/CD pipeline with automated testing and deployment
 - **PLT-V2-05**: Monitoring dashboard (RPC health, tx success rate, account count, cost tracking)
@@ -134,17 +134,56 @@ Deferred to post-mainnet. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 through SEC-06 | Phase 1 | — |
-| SCH-01 through SCH-06 | Phase 1 | — |
-| REG-01 through REG-06 | Phase 1 | — |
-| LIC-01 through LIC-05 | Phase 2 | — |
-| ROY-01 through ROY-04 | Phase 2 | — |
-| EVI-01 through EVI-04 | Phase 3 | — |
-| INF-01 through INF-05 | Phase 2 | — |
-| SIM-01 through SIM-04 | Phase 3 | — |
-| MCP-01 through MCP-03 | Phase 2 | — |
-| DRP-01 through DRP-03 | Phase 3 | — |
-| MNT-01 through MNT-04 | Phase 4 | — |
+| SEC-01 | Phase 1 | Pending |
+| SEC-02 | Phase 1 | Pending |
+| SEC-03 | Phase 1 | Pending |
+| SEC-04 | Phase 1 | Pending |
+| SEC-05 | Phase 1 | Pending |
+| SEC-06 | Phase 4 | Pending |
+| SCH-01 | Phase 1 | Pending |
+| SCH-02 | Phase 1 | Pending |
+| SCH-03 | Phase 1 | Pending |
+| SCH-04 | Phase 1 | Pending |
+| SCH-05 | Phase 1 | Pending |
+| SCH-06 | Phase 1 | Pending |
+| REG-01 | Phase 1 | Pending |
+| REG-02 | Phase 1 | Pending |
+| REG-03 | Phase 1 | Pending |
+| REG-04 | Phase 1 | Pending |
+| REG-05 | Phase 1 | Pending |
+| REG-06 | Phase 1 | Pending |
+| LIC-01 | Phase 2 | Pending |
+| LIC-02 | Phase 2 | Pending |
+| LIC-03 | Phase 2 | Pending |
+| LIC-04 | Phase 2 | Pending |
+| LIC-05 | Phase 2 | Pending |
+| ROY-01 | Phase 2 | Pending |
+| ROY-02 | Phase 2 | Pending |
+| ROY-03 | Phase 2 | Pending |
+| ROY-04 | Phase 2 | Pending |
+| EVI-01 | Phase 3 | Pending |
+| EVI-02 | Phase 3 | Pending |
+| EVI-03 | Phase 3 | Pending |
+| EVI-04 | Phase 3 | Pending |
+| INF-01 | Phase 2 | Pending |
+| INF-02 | Phase 2 | Pending |
+| INF-03 | Phase 2 | Pending |
+| INF-04 | Phase 2 | Pending |
+| INF-05 | Phase 2 | Pending |
+| SIM-01 | Phase 3 | Pending |
+| SIM-02 | Phase 3 | Pending |
+| SIM-03 | Phase 3 | Pending |
+| SIM-04 | Phase 3 | Pending |
+| MCP-01 | Phase 2 | Pending |
+| MCP-02 | Phase 2 | Pending |
+| MCP-03 | Phase 2 | Pending |
+| DRP-01 | Phase 3 | Pending |
+| DRP-02 | Phase 3 | Pending |
+| DRP-03 | Phase 3 | Pending |
+| MNT-01 | Phase 4 | Pending |
+| MNT-02 | Phase 4 | Pending |
+| MNT-03 | Phase 4 | Pending |
+| MNT-04 | Phase 4 | Pending |
 
 ---
 *Requirements defined: 2026-04-12*
