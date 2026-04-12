@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. MCP server and frontend both use the same generated IDL client — no manual Borsh deserializers exist in the codebase, no discriminator mismatches
   4. Registering a duplicate content hash is rejected on-chain, and all 11 IP types are accepted
   5. SolanaLiveAdapter fails fast at startup if keypair is invalid — not on first request
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Security hardening (SEC-01 through SEC-05 constraint fixes across all 4 programs)
-- [ ] 01-02: Schema alignment + IDL client (SCH-01 through SCH-06 redeploy, IDL generation, deserializer replacement)
-- [ ] 01-03: Registration verification (REG-01 through REG-06 end-to-end validation)
+- [ ] 01-01-PLAN.md — Security hardening: fix constraints in all 4 programs + original_creator + ContentHashRegistry + fail-fast keypair
+- [ ] 01-02-PLAN.md — Schema alignment: anchor build, IDL generation, replace all 3 manual deserializers with IDL client
+- [ ] 01-03-PLAN.md — Registration verification: comprehensive test suites for REG-01 through REG-06, devnet redeployment checkpoint
 
 ### Phase 2: Service Layer + Commercial Engine
 **Goal**: Off-chain infrastructure enables scalable search, permanent storage, and per-agent wallets; licensing and royalties work end-to-end with USDC payments
@@ -46,7 +46,7 @@ Plans:
   3. Each MCP agent operates with its own BIP-44 derived wallet — no shared keypair
   4. An IP owner can create a license template, a licensee can acquire it by paying USDC, and verification confirms the license exists with correct terms
   5. Royalty distribution splits a USDC deposit to all configured recipients in a single atomic transaction, with platform fee deducted
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 02-01: Off-chain infrastructure (INF-01 through INF-05: Helius indexer, Irys storage, BIP-44 wallets, PostgreSQL)
@@ -62,7 +62,7 @@ Plans:
   2. Evidence packages include jurisdiction-specific formatting for Indonesia (UU ITE Pasal 5) and WIPO Arbitration
   3. Uploading an image returns perceptual hash matches against all indexed assets with similarity scores; uploading audio returns Chromaprint matches
   4. A dispute can be filed against any IP asset, resolved by a whitelisted arbiter, and the resolution can trigger IP status changes via CPI to Spore
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 03-01: Evidence Engine (EVI-01 through EVI-04: MEP generation, jurisdiction formatting, Arweave anchoring)
@@ -78,7 +78,7 @@ Plans:
   3. Registration cost is validated against actual mainnet rent-exempt minimums and documented (not just transaction fee)
   4. All programs pass verifiable build — anyone can reproduce the exact deployed bytecode
   5. Deployment runbook exists with step-by-step procedure and rollback instructions
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 04-01: Mainnet configuration + deployment (SEC-06, MNT-01 through MNT-04)
