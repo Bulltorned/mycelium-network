@@ -1,14 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::ed25519_program;
 use anchor_lang::solana_program::sysvar::instructions as ix_sysvar;
-use anchor_lang::solana_program::pubkey;
-
 declare_id!("7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc");
 
 /// Protocol authority pubkey -- the deployer wallet that signs evidence packages.
 /// This is the public key from the Anchor.toml wallet (~/.solana-keys/id.json).
 /// In production, this would be a multisig (Squads) address (Phase 4).
-pub const PROTOCOL_AUTHORITY: Pubkey = pubkey!("F98xBPaujC3CXiKWRqudUYksw3vKoGhMAohmDoHdU9ye");
+pub const PROTOCOL_AUTHORITY: Pubkey = Pubkey::new_from_array([
+    210, 25, 65, 11, 61, 167, 181, 102, 53, 59, 228, 61, 65, 119, 171, 222,
+    167, 100, 173, 240, 141, 16, 248, 42, 246, 189, 158, 228, 114, 5, 1, 237,
+]);
 
 /// Mycelium Protocol — Meridian Program
 /// WIPO Evidence Module on Solana
