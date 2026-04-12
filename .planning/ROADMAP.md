@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Security hardening: fix constraints in all 4 programs + original_creator + ContentHashRegistry + fail-fast keypair
 - [x] 01-02-PLAN.md — Schema alignment: IDL generation, replace all 3 manual deserializers with IDL client, PDA helpers updated
-- [ ] 01-03-PLAN.md — Registration verification: comprehensive test suites for REG-01 through REG-06, devnet redeployment checkpoint
+- [x] 01-03-PLAN.md — Registration verification: comprehensive test suites for REG-01 through REG-06, devnet redeployment checkpoint
 
 ### Phase 2: Service Layer + Commercial Engine
 **Goal**: Off-chain infrastructure enables scalable search, permanent storage, and per-agent wallets; licensing and royalties work end-to-end with USDC payments
