@@ -59,7 +59,7 @@ Requirements for production-ready protocol. Each maps to roadmap phases.
 ### Off-Chain Infrastructure
 
 - [ ] **INF-01**: Helius webhook integration receives and indexes all Spore/Hypha/Rhizome/Meridian events into PostgreSQL
-- [ ] **INF-02**: Helius DAS API replaces getProgramAccounts for search and provenance queries
+- [ ] **INF-02**: Helius webhook-driven PostgreSQL index replaces getProgramAccounts for search and provenance queries (DAS API does not support custom Anchor PDAs; webhook indexing into PostgreSQL achieves the same result)
 - [ ] **INF-03**: Irys/Arweave upload pipeline for IP metadata — upload before on-chain registration (two-phase)
 - [ ] **INF-04**: BIP-44 HD wallet derivation per agent (`m/44'/501'/{agentIndex}'/0'`) replaces shared keypair
 - [ ] **INF-05**: PostgreSQL database serves indexer mirror, key vault (encrypted), and similarity hash index
