@@ -303,9 +303,10 @@ pub struct CreateLicenseTemplate<'info> {
         bump
     )]
     pub license_template: Account<'info, LicenseTemplate>,
-    /// CHECK: Validated as an IPAsset from the Spore program.
-    /// In production, use CPI to verify. For PoC, we trust the address.
-    pub ip_asset: UncheckedAccount<'info>,
+    /// CHECK: Validated by owner constraint -- must be owned by the Spore program.
+    /// This ensures the account is a real IPAsset PDA, not an arbitrary account.
+    #[account(owner = mycelium_spore::ID)]
+    pub ip_asset: AccountInfo<'info>,
     #[account(mut)]
     pub licensor: Signer<'info>,
     pub system_program: Program<'info, System>,

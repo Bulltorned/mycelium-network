@@ -28,6 +28,7 @@ pub mod mycelium_rhizome {
         ctx: Context<ConfigureRoyalty>,
         recipients: Vec<RoyaltyRecipient>,
         platform_fee_bps: u16,
+        platform_wallet: Pubkey,
     ) -> Result<()> {
         require!(
             recipients.len() >= 1 && recipients.len() <= MAX_RECIPIENTS,
@@ -53,6 +54,7 @@ pub mod mycelium_rhizome {
         let config = &mut ctx.accounts.royalty_config;
         config.ip_asset = ip_asset_key;
         config.creator = creator_key;
+        config.platform_wallet = platform_wallet;
         config.platform_fee_bps = platform_fee_bps;
         config.total_deposited = 0;
         config.total_distributed = 0;
@@ -200,6 +202,9 @@ pub mod mycelium_rhizome {
 pub struct RoyaltyConfig {
     pub ip_asset: Pubkey,
     pub creator: Pubkey,
+    /// The platform wallet address -- set at configure time, verified at distribution.
+    /// Prevents attackers from draining royalties to arbitrary wallets.
+    pub platform_wallet: Pubkey,
     pub platform_fee_bps: u16,
     pub total_deposited: u64,
     pub total_distributed: u64,
@@ -294,9 +299,17 @@ pub struct DistributeRoyalties<'info> {
     /// CHECK: Pool where distributed SOL is sent for recipient withdrawal.
     #[account(mut)]
     pub distribution_pool: SystemAccount<'info>,
-    /// CHECK: Platform wallet receiving the platform fee.
-    #[account(mut)]
+    /// Platform wallet receiving the platform fee -- must match the address
+    /// configured in RoyaltyConfig to prevent draining to arbitrary wallets.
+    #[account(
+        mut,
+        constraint = platform_wallet.key() == royalty_config.platform_wallet @ RhizomeError::Unauthorized
+    )]
     pub platform_wallet: SystemAccount<'info>,
+    /// Caller must be the royalty config creator to authorize distribution.
+    #[account(
+        constraint = caller.key() == royalty_config.creator @ RhizomeError::Unauthorized
+    )]
     pub caller: Signer<'info>,
 }
 
@@ -352,6 +365,8 @@ pub enum RhizomeError {
     NothingToDistribute,
     #[msg("Arithmetic overflow")]
     Overflow,
+    #[msg("Unauthorized: caller or platform wallet does not match configuration")]
+    Unauthorized,
 }
 
 // ============================================================================

@@ -1,6 +1,14 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::ed25519_program;
+use anchor_lang::solana_program::sysvar::instructions as ix_sysvar;
+use anchor_lang::solana_program::pubkey;
 
 declare_id!("7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc");
+
+/// Protocol authority pubkey -- the deployer wallet that signs evidence packages.
+/// This is the public key from the Anchor.toml wallet (~/.solana-keys/id.json).
+/// In production, this would be a multisig (Squads) address (Phase 4).
+pub const PROTOCOL_AUTHORITY: Pubkey = pubkey!("F98xBPaujC3CXiKWRqudUYksw3vKoGhMAohmDoHdU9ye");
 
 /// Mycelium Protocol — Meridian Program
 /// WIPO Evidence Module on Solana
@@ -10,10 +18,10 @@ declare_id!("7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc");
 /// - WIPO Arbitration and Mediation Center submission
 /// - Indonesian Commercial Court (under UU ITE Pasal 5)
 /// - Kenyan High Court (under Evidence Act Section 106B)
-/// - Colombian courts (under Ley 527 and CGP Artículo 247)
+/// - Colombian courts (under Ley 527 and CGP Articulo 247)
 ///
 /// MEP flow:
-/// 1. IP owner requests MEP generation → Orchestration Service builds full JSON
+/// 1. IP owner requests MEP generation -> Orchestration Service builds full JSON
 /// 2. Full MEP JSON is uploaded to Arweave (permanent, tamper-proof)
 /// 3. SHA-256 hash of MEP is computed
 /// 4. Protocol authority signs the hash with Ed25519
@@ -32,6 +40,12 @@ pub mod mycelium_meridian {
     /// The actual MEP document is generated off-chain by the Orchestration Service
     /// and uploaded to Arweave. This instruction stores the cryptographic proof
     /// on-chain: the document hash, Arweave URI, and protocol signature.
+    ///
+    /// SECURITY: Requires a preceding Ed25519 signature verification instruction
+    /// in the same transaction. The Ed25519 instruction must verify that
+    /// PROTOCOL_AUTHORITY signed the package_hash. A presence-only check is NOT
+    /// sufficient -- we parse the Ed25519 instruction data to confirm the pubkey
+    /// and message match our expectations.
     pub fn generate_mep(
         ctx: Context<GenerateMEP>,
         package_hash: [u8; 32],
@@ -54,6 +68,76 @@ pub mod mycelium_meridian {
             MeridianError::InvalidHash
         );
 
+        // ── Ed25519 signature verification ──────────────────────────────
+        // Step 1: Load the preceding instruction and verify it targets the Ed25519 precompile
+        let ix = ix_sysvar::load_instruction_at_checked(
+            0, // Ed25519 verify must be the first instruction in the transaction
+            &ctx.accounts.instructions_sysvar,
+        )?;
+        require!(
+            ix.program_id == ed25519_program::ID,
+            MeridianError::MissingEd25519Verification
+        );
+
+        // Step 2: Parse the Ed25519 instruction data to verify it matches our expected
+        // protocol authority and package_hash.
+        //
+        // Ed25519 instruction data layout (from solana_sdk::ed25519_instruction):
+        //   Bytes 0-1:   num_signatures (u16, little-endian) -- must be 1
+        //   Bytes 2-3:   padding (zeroed)
+        //   Bytes 4-5:   signature_offset (u16) -- typically 112
+        //   Bytes 6-7:   signature_instruction_index (u16) -- 0xFFFF means same instruction
+        //   Bytes 8-9:   public_key_offset (u16) -- typically 16
+        //   Bytes 10-11: public_key_instruction_index (u16) -- 0xFFFF means same instruction
+        //   Bytes 12-13: message_data_offset (u16)
+        //   Bytes 14-15: message_data_size (u16)
+        //   Bytes 16-47: public_key (32 bytes)
+        //   Bytes 48-111: signature (64 bytes)
+        //   Bytes 112+:  message data
+
+        let ix_data = &ix.data;
+        require!(
+            ix_data.len() >= 112,
+            MeridianError::InvalidEd25519InstructionData
+        );
+
+        // Verify num_signatures == 1
+        let num_sigs = u16::from_le_bytes([ix_data[0], ix_data[1]]);
+        require!(
+            num_sigs == 1,
+            MeridianError::InvalidEd25519InstructionData
+        );
+
+        // Extract public key offset and read the pubkey
+        let pubkey_offset = u16::from_le_bytes([ix_data[8], ix_data[9]]) as usize;
+        require!(
+            pubkey_offset + 32 <= ix_data.len(),
+            MeridianError::InvalidEd25519InstructionData
+        );
+        let ed25519_pubkey = &ix_data[pubkey_offset..pubkey_offset + 32];
+
+        // Verify the pubkey matches PROTOCOL_AUTHORITY
+        require!(
+            ed25519_pubkey == PROTOCOL_AUTHORITY.as_ref(),
+            MeridianError::InvalidProtocolAuthority
+        );
+
+        // Extract message offset and size, then verify message matches package_hash
+        let msg_offset = u16::from_le_bytes([ix_data[12], ix_data[13]]) as usize;
+        let msg_size = u16::from_le_bytes([ix_data[14], ix_data[15]]) as usize;
+        require!(
+            msg_offset + msg_size <= ix_data.len(),
+            MeridianError::InvalidEd25519InstructionData
+        );
+        let ed25519_message = &ix_data[msg_offset..msg_offset + msg_size];
+
+        // The message signed must be the package_hash being stored in this MEP
+        require!(
+            ed25519_message == package_hash.as_ref(),
+            MeridianError::PackageHashMismatch
+        );
+
+        // ── Write evidence package ──────────────────────────────────────
         let clock = Clock::get()?;
         let evidence_key = ctx.accounts.evidence_package.key();
         let ip_asset_key = ctx.accounts.ip_asset.key();
@@ -95,7 +179,7 @@ pub mod mycelium_meridian {
 
     /// Verify a Mycelium Evidence Package on-chain.
     ///
-    /// Anyone can call this — courts, opposing counsel, arbitrators.
+    /// Anyone can call this -- courts, opposing counsel, arbitrators.
     /// Provide the claimed MEP hash and the on-chain PDA address.
     /// Returns whether the hash matches the signed on-chain record.
     pub fn verify_mep(
@@ -194,7 +278,7 @@ pub struct EvidencePackage {
     pub requested_by: Pubkey,
     /// When the MEP was generated (Unix timestamp).
     pub generated_at: i64,
-    /// Solana slot at generation — for PoH verification.
+    /// Solana slot at generation -- for PoH verification.
     pub generated_slot: u64,
     /// SHA-256 hash of the full MEP JSON document on Arweave.
     pub package_hash: [u8; 32],
@@ -202,7 +286,7 @@ pub struct EvidencePackage {
     #[max_len(128)]
     pub arweave_uri: String,
     /// Ed25519 signature by the Mycelium protocol authority.
-    /// Signs the package_hash — makes the MEP tamper-evident.
+    /// Signs the package_hash -- makes the MEP tamper-evident.
     pub protocol_signature: [u8; 64],
     /// Snapshot: number of active licenses at time of MEP generation.
     pub license_count_snapshot: u32,
@@ -229,11 +313,11 @@ pub struct EvidencePackage {
 /// Each jurisdiction has different legal requirements for electronic evidence.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Debug, InitSpace)]
 pub enum Jurisdiction {
-    /// Indonesia — UU ITE Pasal 5, Commercial Court
+    /// Indonesia -- UU ITE Pasal 5, Commercial Court
     Indonesia,
-    /// Kenya — Evidence Act Section 106B, High Court
+    /// Kenya -- Evidence Act Section 106B, High Court
     Kenya,
-    /// Colombia — Ley 527, CGP Artículo 247, SIC
+    /// Colombia -- Ley 527, CGP Articulo 247, SIC
     Colombia,
     /// WIPO Arbitration and Mediation Center
     WIPOArbitration,
@@ -263,6 +347,9 @@ pub struct GenerateMEP<'info> {
     pub ip_asset: UncheckedAccount<'info>,
     #[account(mut)]
     pub requester: Signer<'info>,
+    /// CHECK: Instructions sysvar for Ed25519 signature verification.
+    #[account(address = ix_sysvar::ID)]
+    pub instructions_sysvar: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -336,6 +423,14 @@ pub enum MeridianError {
     Unauthorized,
     #[msg("Arithmetic overflow")]
     Overflow,
+    #[msg("Missing Ed25519 signature verification instruction")]
+    MissingEd25519Verification,
+    #[msg("Ed25519 instruction data is malformed or too short")]
+    InvalidEd25519InstructionData,
+    #[msg("Ed25519 pubkey does not match expected protocol authority")]
+    InvalidProtocolAuthority,
+    #[msg("Ed25519 signed message does not match the MEP package hash")]
+    PackageHashMismatch,
 }
 
 // ============================================================================
