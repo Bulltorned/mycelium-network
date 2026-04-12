@@ -24,7 +24,8 @@ export type IPStatus = "active" | "disputed" | "suspended" | "revoked";
 
 export interface IPAsset {
   pubkey: string;
-  creator: string;
+  originalCreator: string;    // immutable — used in PDA seeds
+  creator: string;            // current owner — changes on transfer
   contentHash: string;        // hex-encoded SHA-256
   perceptualHash: string;     // hex-encoded multi-algo fingerprint
   ipType: IPType;
@@ -36,6 +37,46 @@ export interface IPAsset {
   licenseCount: number;
   disputeCount: number;
   version: number;
+  // WIPO-compatible metadata (added in Plan 01-01)
+  niceClass: number | null;         // Nice classification (1-45)
+  berneCategory: number | null;     // Berne Convention category
+  countryOfOrigin: [number, number]; // ISO 3166-1 alpha-2 as byte pair
+  firstUseDate: number | null;      // Unix timestamp of first commercial use
+  wipoAligned: boolean;             // true if niceClass or berneCategory is set
+  bump: number;
+}
+
+// ── Content Hash Registry (maps to mycelium-spore ContentHashRegistry PDA) ──
+// Global uniqueness index — one PDA per content_hash, prevents duplicate registrations
+
+export interface ContentHashRegistry {
+  contentHash: string;    // hex-encoded 32-byte SHA-256
+  ipAsset: string;        // Pubkey as base58 string — the IPAsset this hash belongs to
+  bump: number;
+}
+
+// ── Royalty Types (maps to mycelium-rhizome program) ────────────────────
+
+export type RecipientRole = "creator" | "co_creator" | "parent_ip" | "platform" | "other";
+
+export interface RoyaltyRecipient {
+  wallet: string;         // Pubkey as base58 string
+  shareBps: number;       // basis points (e.g., 5000 = 50%)
+  role: RecipientRole;
+}
+
+export interface RoyaltyConfig {
+  ipAsset: string;        // Pubkey as base58 string
+  creator: string;        // Pubkey — who configured this royalty
+  platformWallet: string; // Pubkey — verified at distribution time
+  platformFeeBps: number; // Max 1000 (10%)
+  totalDeposited: number; // lamports
+  totalDistributed: number;
+  distributionCount: number;
+  isActive: boolean;
+  recipientCount: number;
+  recipients: RoyaltyRecipient[];
+  bump: number;
 }
 
 export interface IPMetadata {
