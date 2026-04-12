@@ -19,11 +19,11 @@ Requirements for production-ready protocol. Each maps to roadmap phases.
 ### Schema Alignment
 
 - [x] **SCH-01**: Spore program redeployed with `original_creator: Pubkey` field (immutable, used in PDA seeds) separate from `creator` (current owner, mutable on transfer) *(01-01, code change — redeploy in 01-02)*
-- [ ] **SCH-02**: All 3 manual Borsh deserializers replaced with generated Anchor IDL client (@coral-xyz/anchor 0.30.1)
-- [ ] **SCH-03**: Instruction discriminator mismatch between MCP server and frontend resolved via shared IDL
+- [x] **SCH-02**: All 3 manual Borsh deserializers replaced with generated Anchor IDL client (@coral-xyz/anchor 0.30.1) *(01-02)*
+- [x] **SCH-03**: Instruction discriminator mismatch between MCP server and frontend resolved via shared IDL *(01-02)*
 - [x] **SCH-04**: Stale root `mycelium_spore_lib.rs` deleted — single source of truth in `programs/mycelium-spore/src/lib.rs` *(01-01)*
 - [x] **SCH-05**: Account size calculation updated for `original_creator` field addition (352 bytes) *(01-01, via InitSpace derive)*
-- [ ] **SCH-06**: Existing devnet accounts migrated or wiped with documented decision
+- [x] **SCH-06**: Existing devnet accounts migrated or wiped with documented decision *(01-02, decision: wipe devnet)*
 
 ### IP Registration (Spore)
 
@@ -141,11 +141,11 @@ Deferred to post-mainnet. Tracked but not in current roadmap.
 | SEC-05 | Phase 1 | Pending |
 | SEC-06 | Phase 4 | Pending |
 | SCH-01 | Phase 1 | Pending |
-| SCH-02 | Phase 1 | Pending |
-| SCH-03 | Phase 1 | Pending |
+| SCH-02 | Phase 1 | Complete (01-02) |
+| SCH-03 | Phase 1 | Complete (01-02) |
 | SCH-04 | Phase 1 | Pending |
 | SCH-05 | Phase 1 | Pending |
-| SCH-06 | Phase 1 | Pending |
+| SCH-06 | Phase 1 | Complete (01-02) |
 | REG-01 | Phase 1 | Pending |
 | REG-02 | Phase 1 | Pending |
 | REG-03 | Phase 1 | Pending |
