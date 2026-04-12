@@ -9,20 +9,20 @@ Requirements for production-ready protocol. Each maps to roadmap phases.
 
 ### Security Hardening
 
-- [ ] **SEC-01**: UpdateStatus instruction constrained to protocol authority pubkey or DRP program — no arbitrary signer can change IP status
-- [ ] **SEC-02**: Meridian GenerateMEP verifies Ed25519 protocol signature on-chain before writing EvidencePackage PDA
-- [ ] **SEC-03**: Hypha CreateLicenseTemplate validates ip_asset is a real IPAsset PDA (not UncheckedAccount)
-- [ ] **SEC-04**: Rhizome DistributeRoyalties verifies platform_wallet and recipients against RoyaltyConfig PDA — caller cannot supply arbitrary drain address
-- [ ] **SEC-05**: Keypair file validated at SolanaLiveAdapter constructor startup — fail-fast, not fail-on-first-request
+- [x] **SEC-01**: UpdateStatus instruction constrained to protocol authority pubkey or DRP program — no arbitrary signer can change IP status *(01-01)*
+- [x] **SEC-02**: Meridian GenerateMEP verifies Ed25519 protocol signature on-chain before writing EvidencePackage PDA *(01-01)*
+- [x] **SEC-03**: Hypha CreateLicenseTemplate validates ip_asset is a real IPAsset PDA (not UncheckedAccount) *(01-01)*
+- [x] **SEC-04**: Rhizome DistributeRoyalties verifies platform_wallet and recipients against RoyaltyConfig PDA — caller cannot supply arbitrary drain address *(01-01)*
+- [x] **SEC-05**: Keypair file validated at SolanaLiveAdapter constructor startup — fail-fast, not fail-on-first-request *(01-01)*
 - [ ] **SEC-06**: Squads v4 multisig configured as program upgrade authority before mainnet (2-of-3 minimum)
 
 ### Schema Alignment
 
-- [ ] **SCH-01**: Spore program redeployed with `original_creator: Pubkey` field (immutable, used in PDA seeds) separate from `creator` (current owner, mutable on transfer)
+- [x] **SCH-01**: Spore program redeployed with `original_creator: Pubkey` field (immutable, used in PDA seeds) separate from `creator` (current owner, mutable on transfer) *(01-01, code change — redeploy in 01-02)*
 - [ ] **SCH-02**: All 3 manual Borsh deserializers replaced with generated Anchor IDL client (@coral-xyz/anchor 0.30.1)
 - [ ] **SCH-03**: Instruction discriminator mismatch between MCP server and frontend resolved via shared IDL
-- [ ] **SCH-04**: Stale root `mycelium_spore_lib.rs` deleted — single source of truth in `programs/mycelium-spore/src/lib.rs`
-- [ ] **SCH-05**: Account size calculation updated for `original_creator` field addition (352 bytes)
+- [x] **SCH-04**: Stale root `mycelium_spore_lib.rs` deleted — single source of truth in `programs/mycelium-spore/src/lib.rs` *(01-01)*
+- [x] **SCH-05**: Account size calculation updated for `original_creator` field addition (352 bytes) *(01-01, via InitSpace derive)*
 - [ ] **SCH-06**: Existing devnet accounts migrated or wiped with documented decision
 
 ### IP Registration (Spore)
@@ -31,7 +31,7 @@ Requirements for production-ready protocol. Each maps to roadmap phases.
 - [ ] **REG-02**: Registration produces immutable Solana PoH timestamp (slot number + unix timestamp)
 - [ ] **REG-03**: Creator can register derivative works linked to parent IP via `register_derivative` instruction
 - [ ] **REG-04**: Creator can transfer ownership without breaking PDA derivation (original_creator stays in seeds)
-- [ ] **REG-05**: Duplicate content hash rejected at registration time
+- [x] **REG-05**: Duplicate content hash rejected at registration time *(01-01, ContentHashRegistry PDA)*
 - [ ] **REG-06**: All 11 IP types supported (Literary, Visual Art, Music, Software, Character IP, Meme, Video, AI-Generated, Traditional Knowledge, Dataset, Brand Mark)
 
 ### Licensing (Hypha)

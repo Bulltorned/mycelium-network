@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Security hardening: fix constraints in all 4 programs + original_creator + ContentHashRegistry + fail-fast keypair
+- [x] 01-01-PLAN.md — Security hardening: fix constraints in all 4 programs + original_creator + ContentHashRegistry + fail-fast keypair
 - [ ] 01-02-PLAN.md — Schema alignment: anchor build, IDL generation, replace all 3 manual deserializers with IDL client
 - [ ] 01-03-PLAN.md — Registration verification: comprehensive test suites for REG-01 through REG-06, devnet redeployment checkpoint
 
@@ -90,7 +90,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Secure Foundation | 0/3 | Not started | - |
+| 1. Secure Foundation | 1/3 | In progress | - |
 | 2. Service Layer + Commercial Engine | 0/3 | Not started | - |
 | 3. IP Protection Loop | 0/2 | Not started | - |
 | 4. Mainnet Deployment | 0/1 | Not started | - |
