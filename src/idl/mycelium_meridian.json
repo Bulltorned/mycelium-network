@@ -1,0 +1,136 @@
+{
+  "version": "0.1.0",
+  "name": "mycelium_meridian",
+  "instructions": [
+    {
+      "name": "generateMep",
+      "accounts": [
+        { "name": "evidencePackage", "isMut": true, "isSigner": false },
+        { "name": "ipAsset", "isMut": false, "isSigner": false },
+        { "name": "requester", "isMut": true, "isSigner": true },
+        { "name": "instructionsSysvar", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "packageHash", "type": { "array": ["u8", 32] } },
+        { "name": "arweaveUri", "type": "string" },
+        { "name": "protocolSignature", "type": { "array": ["u8", 64] } },
+        { "name": "licenseCountSnapshot", "type": "u32" },
+        { "name": "totalRoyaltiesSnapshot", "type": "u64" },
+        { "name": "jurisdiction", "type": { "defined": "Jurisdiction" } }
+      ]
+    },
+    {
+      "name": "verifyMep",
+      "accounts": [
+        { "name": "evidencePackage", "isMut": true, "isSigner": false },
+        { "name": "verifier", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "claimedHash", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "updateMep",
+      "accounts": [
+        { "name": "evidencePackage", "isMut": true, "isSigner": false },
+        { "name": "requester", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "newPackageHash", "type": { "array": ["u8", 32] } },
+        { "name": "newArweaveUri", "type": "string" },
+        { "name": "newProtocolSignature", "type": { "array": ["u8", 64] } },
+        { "name": "newLicenseCount", "type": "u32" },
+        { "name": "newTotalRoyalties", "type": "u64" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "EvidencePackage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "ipAsset", "type": "publicKey" },
+          { "name": "requestedBy", "type": "publicKey" },
+          { "name": "generatedAt", "type": "i64" },
+          { "name": "generatedSlot", "type": "u64" },
+          { "name": "packageHash", "type": { "array": ["u8", 32] } },
+          { "name": "arweaveUri", "type": "string" },
+          { "name": "protocolSignature", "type": { "array": ["u8", 64] } },
+          { "name": "licenseCountSnapshot", "type": "u32" },
+          { "name": "totalRoyaltiesSnapshot", "type": "u64" },
+          { "name": "jurisdiction", "type": { "defined": "Jurisdiction" } },
+          { "name": "isWipoCompliant", "type": "bool" },
+          { "name": "verificationCount", "type": "u32" },
+          { "name": "version", "type": "u16" },
+          { "name": "supersededBy", "type": { "option": "publicKey" } },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Jurisdiction",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Indonesia" },
+          { "name": "Kenya" },
+          { "name": "Colombia" },
+          { "name": "WIPOArbitration" },
+          { "name": "International" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "MEPGenerated",
+      "fields": [
+        { "name": "evidenceKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "requestedBy", "type": "publicKey", "index": false },
+        { "name": "packageHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "arweaveUri", "type": "string", "index": false },
+        { "name": "jurisdiction", "type": { "defined": "Jurisdiction" }, "index": false },
+        { "name": "generatedAt", "type": "i64", "index": false },
+        { "name": "generatedSlot", "type": "u64", "index": false }
+      ]
+    },
+    {
+      "name": "MEPVerified",
+      "fields": [
+        { "name": "evidenceKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "verifier", "type": "publicKey", "index": false },
+        { "name": "claimedHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "isValid", "type": "bool", "index": false },
+        { "name": "verificationNumber", "type": "u32", "index": false }
+      ]
+    },
+    {
+      "name": "MEPUpdated",
+      "fields": [
+        { "name": "evidenceKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "oldHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "newHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "newArweaveUri", "type": "string", "index": false },
+        { "name": "version", "type": "u16", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "UriTooLong", "msg": "URI exceeds maximum length" },
+    { "code": 6001, "name": "UriEmpty", "msg": "URI cannot be empty" },
+    { "code": 6002, "name": "InvalidHash", "msg": "Hash cannot be all zeros" },
+    { "code": 6003, "name": "Unauthorized", "msg": "Only the requester can perform this action" },
+    { "code": 6004, "name": "Overflow", "msg": "Arithmetic overflow" },
+    { "code": 6005, "name": "MissingEd25519Verification", "msg": "Missing Ed25519 signature verification instruction" },
+    { "code": 6006, "name": "InvalidEd25519InstructionData", "msg": "Ed25519 instruction data is malformed or too short" },
+    { "code": 6007, "name": "InvalidProtocolAuthority", "msg": "Ed25519 pubkey does not match expected protocol authority" },
+    { "code": 6008, "name": "PackageHashMismatch", "msg": "Ed25519 signed message does not match the MEP package hash" }
+  ]
+}

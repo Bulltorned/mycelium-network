@@ -13,7 +13,9 @@
     "dev": "tsx src/index.ts"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
     "@modelcontextprotocol/sdk": "^1.12.1",
+    "@solana/web3.js": "^1.98.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {

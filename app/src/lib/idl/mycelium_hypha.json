@@ -1,0 +1,196 @@
+{
+  "version": "0.1.0",
+  "name": "mycelium_hypha",
+  "instructions": [
+    {
+      "name": "createLicenseTemplate",
+      "accounts": [
+        { "name": "licenseTemplate", "isMut": true, "isSigner": false },
+        { "name": "ipAsset", "isMut": false, "isSigner": false },
+        { "name": "licensor", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "licenseType", "type": { "defined": "LicenseType" } },
+        { "name": "royaltyRateBps", "type": "u16" },
+        { "name": "maxSublicenses", "type": "u32" },
+        { "name": "territory", "type": { "defined": "Territory" } },
+        { "name": "durationSeconds", "type": { "option": "i64" } },
+        { "name": "commercialUse", "type": "bool" },
+        { "name": "aiTrainingAllowed", "type": "bool" }
+      ]
+    },
+    {
+      "name": "issueLicense",
+      "accounts": [
+        { "name": "license", "isMut": true, "isSigner": false },
+        { "name": "licenseTemplate", "isMut": true, "isSigner": false },
+        { "name": "licensee", "isMut": false, "isSigner": false },
+        { "name": "licensor", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "licenseeName", "type": "string" },
+        { "name": "purpose", "type": "string" }
+      ]
+    },
+    {
+      "name": "revokeLicense",
+      "accounts": [
+        { "name": "license", "isMut": true, "isSigner": false },
+        { "name": "licenseTemplate", "isMut": true, "isSigner": false },
+        { "name": "licensor", "isMut": false, "isSigner": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "deactivateTemplate",
+      "accounts": [
+        { "name": "licenseTemplate", "isMut": true, "isSigner": false },
+        { "name": "licensor", "isMut": false, "isSigner": true }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "LicenseTemplate",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "ipAsset", "type": "publicKey" },
+          { "name": "licensor", "type": "publicKey" },
+          { "name": "licenseType", "type": { "defined": "LicenseType" } },
+          { "name": "royaltyRateBps", "type": "u16" },
+          { "name": "maxSublicenses", "type": "u32" },
+          { "name": "territory", "type": { "defined": "Territory" } },
+          { "name": "durationSeconds", "type": { "option": "i64" } },
+          { "name": "commercialUse", "type": "bool" },
+          { "name": "aiTrainingAllowed", "type": "bool" },
+          { "name": "activeLicenses", "type": "u32" },
+          { "name": "totalIssued", "type": "u32" },
+          { "name": "isActive", "type": "bool" },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "License",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "template", "type": "publicKey" },
+          { "name": "ipAsset", "type": "publicKey" },
+          { "name": "licensor", "type": "publicKey" },
+          { "name": "licensee", "type": "publicKey" },
+          { "name": "licenseeName", "type": "string" },
+          { "name": "purpose", "type": "string" },
+          { "name": "licenseType", "type": { "defined": "LicenseType" } },
+          { "name": "royaltyRateBps", "type": "u16" },
+          { "name": "commercialUse", "type": "bool" },
+          { "name": "aiTrainingAllowed", "type": "bool" },
+          { "name": "territory", "type": { "defined": "Territory" } },
+          { "name": "issuedAt", "type": "i64" },
+          { "name": "expiresAt", "type": { "option": "i64" } },
+          { "name": "status", "type": { "defined": "LicenseStatus" } },
+          { "name": "sublicenseCount", "type": "u32" },
+          { "name": "maxSublicenses", "type": "u32" },
+          { "name": "totalRoyaltiesPaid", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "LicenseType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "CreativeCommons" },
+          { "name": "Commercial" },
+          { "name": "Exclusive" },
+          { "name": "AITraining" }
+        ]
+      }
+    },
+    {
+      "name": "Territory",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Global" },
+          { "name": "Country", "fields": [{ "name": "code", "type": { "array": ["u8", 2] } }] },
+          { "name": "ASEAN" },
+          { "name": "Custom" }
+        ]
+      }
+    },
+    {
+      "name": "LicenseStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Active" },
+          { "name": "Expired" },
+          { "name": "Revoked" },
+          { "name": "Suspended" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "LicenseTemplateCreated",
+      "fields": [
+        { "name": "templateKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "licensor", "type": "publicKey", "index": false },
+        { "name": "licenseType", "type": { "defined": "LicenseType" }, "index": false },
+        { "name": "royaltyRateBps", "type": "u16", "index": false },
+        { "name": "commercialUse", "type": "bool", "index": false },
+        { "name": "aiTrainingAllowed", "type": "bool", "index": false }
+      ]
+    },
+    {
+      "name": "LicenseIssued",
+      "fields": [
+        { "name": "licenseKey", "type": "publicKey", "index": false },
+        { "name": "templateKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "licensor", "type": "publicKey", "index": false },
+        { "name": "licensee", "type": "publicKey", "index": false },
+        { "name": "licenseType", "type": { "defined": "LicenseType" }, "index": false },
+        { "name": "royaltyRateBps", "type": "u16", "index": false },
+        { "name": "issuedAt", "type": "i64", "index": false },
+        { "name": "expiresAt", "type": { "option": "i64" }, "index": false }
+      ]
+    },
+    {
+      "name": "LicenseRevoked",
+      "fields": [
+        { "name": "licenseKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "licensor", "type": "publicKey", "index": false },
+        { "name": "licensee", "type": "publicKey", "index": false }
+      ]
+    },
+    {
+      "name": "TemplateDeactivated",
+      "fields": [
+        { "name": "templateKey", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidRoyaltyRate", "msg": "Royalty rate must be between 0 and 10000 basis points" },
+    { "code": 6001, "name": "TemplateNotActive", "msg": "License template is not active" },
+    { "code": 6002, "name": "LicenseNotActive", "msg": "License is not in Active status" },
+    { "code": 6003, "name": "Unauthorized", "msg": "Only the licensor can perform this action" },
+    { "code": 6004, "name": "NameTooLong", "msg": "Name exceeds maximum length" },
+    { "code": 6005, "name": "PurposeTooLong", "msg": "Purpose exceeds maximum length" },
+    { "code": 6006, "name": "Overflow", "msg": "Arithmetic overflow" }
+  ]
+}

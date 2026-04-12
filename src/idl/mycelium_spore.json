@@ -1,0 +1,210 @@
+{
+  "version": "0.1.0",
+  "name": "mycelium_spore",
+  "instructions": [
+    {
+      "name": "registerIp",
+      "accounts": [
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "contentHashRegistry", "isMut": true, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "contentHash", "type": { "array": ["u8", 32] } },
+        { "name": "perceptualHash", "type": { "array": ["u8", 32] } },
+        { "name": "ipType", "type": { "defined": "IPType" } },
+        { "name": "metadataUri", "type": "string" },
+        { "name": "niceClass", "type": { "option": "u8" } },
+        { "name": "berneCategory", "type": { "option": "u8" } },
+        { "name": "countryOfOrigin", "type": { "array": ["u8", 2] } },
+        { "name": "firstUseDate", "type": { "option": "i64" } }
+      ]
+    },
+    {
+      "name": "registerDerivative",
+      "accounts": [
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "contentHashRegistry", "isMut": true, "isSigner": false },
+        { "name": "parentIpAsset", "isMut": false, "isSigner": false },
+        { "name": "creator", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "contentHash", "type": { "array": ["u8", 32] } },
+        { "name": "perceptualHash", "type": { "array": ["u8", 32] } },
+        { "name": "ipType", "type": { "defined": "IPType" } },
+        { "name": "metadataUri", "type": "string" },
+        { "name": "countryOfOrigin", "type": { "array": ["u8", 2] } }
+      ]
+    },
+    {
+      "name": "updateMetadata",
+      "accounts": [
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "creator", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "newMetadataUri", "type": "string" }
+      ]
+    },
+    {
+      "name": "transferOwnership",
+      "accounts": [
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "currentOwner", "isMut": false, "isSigner": true },
+        { "name": "newOwner", "isMut": false, "isSigner": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateStatus",
+      "accounts": [
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "newStatus", "type": { "defined": "IPStatus" } }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "IPAsset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "originalCreator", "type": "publicKey" },
+          { "name": "creator", "type": "publicKey" },
+          { "name": "contentHash", "type": { "array": ["u8", 32] } },
+          { "name": "perceptualHash", "type": { "array": ["u8", 32] } },
+          { "name": "ipType", "type": { "defined": "IPType" } },
+          { "name": "metadataUri", "type": "string" },
+          { "name": "registrationSlot", "type": "u64" },
+          { "name": "registrationTimestamp", "type": "i64" },
+          { "name": "parentIp", "type": { "option": "publicKey" } },
+          { "name": "status", "type": { "defined": "IPStatus" } },
+          { "name": "licenseCount", "type": "u32" },
+          { "name": "disputeCount", "type": "u32" },
+          { "name": "version", "type": "u16" },
+          { "name": "niceClass", "type": { "option": "u8" } },
+          { "name": "berneCategory", "type": { "option": "u8" } },
+          { "name": "countryOfOrigin", "type": { "array": ["u8", 2] } },
+          { "name": "firstUseDate", "type": { "option": "i64" } },
+          { "name": "wipoAligned", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "ContentHashRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "contentHash", "type": { "array": ["u8", 32] } },
+          { "name": "ipAsset", "type": "publicKey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "IPType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "LiteraryWork" },
+          { "name": "VisualArt" },
+          { "name": "Music" },
+          { "name": "Software" },
+          { "name": "CharacterIP" },
+          { "name": "Meme" },
+          { "name": "Video" },
+          { "name": "AIGenerated" },
+          { "name": "TraditionalKnowledge" },
+          { "name": "Dataset" },
+          { "name": "BrandMark" }
+        ]
+      }
+    },
+    {
+      "name": "IPStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Active" },
+          { "name": "Disputed" },
+          { "name": "Suspended" },
+          { "name": "Revoked" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "IPRegistered",
+      "fields": [
+        { "name": "originalCreator", "type": "publicKey", "index": false },
+        { "name": "creator", "type": "publicKey", "index": false },
+        { "name": "ipAssetKey", "type": "publicKey", "index": false },
+        { "name": "contentHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "perceptualHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "ipType", "type": { "defined": "IPType" }, "index": false },
+        { "name": "metadataUri", "type": "string", "index": false },
+        { "name": "slot", "type": "u64", "index": false },
+        { "name": "timestamp", "type": "i64", "index": false }
+      ]
+    },
+    {
+      "name": "DerivativeRegistered",
+      "fields": [
+        { "name": "creator", "type": "publicKey", "index": false },
+        { "name": "ipAssetKey", "type": "publicKey", "index": false },
+        { "name": "parentIpKey", "type": "publicKey", "index": false },
+        { "name": "parentCreator", "type": "publicKey", "index": false },
+        { "name": "contentHash", "type": { "array": ["u8", 32] }, "index": false },
+        { "name": "ipType", "type": { "defined": "IPType" }, "index": false },
+        { "name": "slot", "type": "u64", "index": false },
+        { "name": "timestamp", "type": "i64", "index": false }
+      ]
+    },
+    {
+      "name": "MetadataUpdated",
+      "fields": [
+        { "name": "ipAssetKey", "type": "publicKey", "index": false },
+        { "name": "creator", "type": "publicKey", "index": false },
+        { "name": "oldMetadataUri", "type": "string", "index": false },
+        { "name": "newMetadataUri", "type": "string", "index": false },
+        { "name": "version", "type": "u16", "index": false }
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "fields": [
+        { "name": "ipAssetKey", "type": "publicKey", "index": false },
+        { "name": "from", "type": "publicKey", "index": false },
+        { "name": "to", "type": "publicKey", "index": false },
+        { "name": "contentHash", "type": { "array": ["u8", 32] }, "index": false }
+      ]
+    },
+    {
+      "name": "StatusUpdated",
+      "fields": [
+        { "name": "ipAssetKey", "type": "publicKey", "index": false },
+        { "name": "oldStatus", "type": { "defined": "IPStatus" }, "index": false },
+        { "name": "newStatus", "type": { "defined": "IPStatus" }, "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "MetadataUriTooLong", "msg": "Metadata URI exceeds maximum length of 128 characters" },
+    { "code": 6001, "name": "MetadataUriEmpty", "msg": "Metadata URI cannot be empty" },
+    { "code": 6002, "name": "InvalidContentHash", "msg": "Content hash cannot be all zeros" },
+    { "code": 6003, "name": "ParentIPNotActive", "msg": "Parent IP asset is not in Active status" },
+    { "code": 6004, "name": "Unauthorized", "msg": "Only the creator can perform this action" },
+    { "code": 6005, "name": "InvalidStatusTransition", "msg": "Invalid status transition" },
+    { "code": 6006, "name": "IPAssetNotActive", "msg": "IP asset is not in Active status" },
+    { "code": 6007, "name": "Overflow", "msg": "Arithmetic overflow" }
+  ]
+}

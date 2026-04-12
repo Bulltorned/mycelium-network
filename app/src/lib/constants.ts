@@ -11,6 +11,7 @@ export const PROGRAM_IDS = {
 // PDA seeds — must match on-chain constants
 export const SEEDS = {
   IP_ASSET: Buffer.from("ip_asset"),
+  CONTENT_HASH: Buffer.from("content_hash_index"),
   LICENSE_TEMPLATE: Buffer.from("license_template"),
   LICENSE: Buffer.from("license"),
   ROYALTY_CONFIG: Buffer.from("royalty_config"),
