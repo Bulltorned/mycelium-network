@@ -65,8 +65,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Evidence Engine (EVI-01 through EVI-04: MEP generation, jurisdiction formatting, Arweave anchoring)
-- [ ] 03-02: Similarity Oracle + Disputes (SIM-01 through SIM-04, DRP-01 through DRP-03: Python sidecar, DRP program, CPI integration)
+- [ ] 03-01-PLAN.md — Evidence Engine (EVI-01 through EVI-04: MEP assembler, jurisdiction formatting, Arweave anchoring, Meridian on-chain)
+- [ ] 03-02-PLAN.md — Similarity Oracle (SIM-01 through SIM-04: Python FastAPI sidecar, image pHash/dHash, audio Chromaprint, TypeScript client)
+- [ ] 03-03-PLAN.md — Dispute Resolution Protocol (DRP-01 through DRP-03: DRP Anchor program, Spore CPI authority, IDL + live adapter wiring)
 
 ### Phase 4: Mainnet Deployment
 **Goal**: Protocol is deployed to mainnet-beta with multisig governance, verified builds, and documented operational procedures
@@ -91,6 +92,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Secure Foundation | 2/3 | In progress | - |
-| 2. Service Layer + Commercial Engine | 0/3 | Not started | - |
-| 3. IP Protection Loop | 0/2 | Not started | - |
+| 2. Service Layer + Commercial Engine | 3/3 | Complete | 2026-04-13 |
+| 3. IP Protection Loop | 0/3 | Not started | - |
 | 4. Mainnet Deployment | 0/1 | Not started | - |
