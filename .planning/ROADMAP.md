@@ -74,7 +74,7 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: SEC-06, MNT-01, MNT-02, MNT-03, MNT-04
 **Success Criteria** (what must be TRUE):
-  1. All 4 programs are deployed to mainnet-beta with program IDs configured in Anchor.toml and all adapters
+  1. All 5 programs are deployed to mainnet-beta with program IDs configured in Anchor.toml and all adapters
   2. Squads v4 multisig (2-of-3 minimum) is the upgrade authority for all programs — no single key can modify the protocol
   3. Registration cost is validated against actual mainnet rent-exempt minimums and documented (not just transaction fee)
   4. All programs pass verifiable build — anyone can reproduce the exact deployed bytecode
@@ -82,7 +82,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Mainnet configuration + deployment (SEC-06, MNT-01 through MNT-04)
+- [ ] 04-01-PLAN.md — Mainnet keypairs, cross-program ID resolution, network-aware adapters, cost documentation (MNT-01, MNT-02)
+- [ ] 04-02-PLAN.md — GitHub Actions CI/CD for verifiable builds + deployment runbook (MNT-03, MNT-04)
+- [ ] 04-03-PLAN.md — Squads v4 multisig setup + authority transfer (SEC-06)
 
 ## Progress
 
@@ -94,4 +96,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Secure Foundation | 2/3 | In progress | - |
 | 2. Service Layer + Commercial Engine | 3/3 | Complete | 2026-04-13 |
 | 3. IP Protection Loop | 0/3 | Not started | - |
-| 4. Mainnet Deployment | 0/1 | Not started | - |
+| 4. Mainnet Deployment | 0/3 | Not started | - |
