@@ -2,6 +2,21 @@ use anchor_lang::prelude::*;
 
 declare_id!("AZGNVbxsnUmCi9CoEDrosJXnTK6xmujbutJsLTqXQyPz");
 
+/// DRP program authority PDA -- derived from DRP program ID + "drp_authority" seed.
+/// This allows the DRP program to call update_status via CPI when resolving disputes.
+///
+/// Mainnet DRP program: BKrUCdqyVLywaT3WhLcKkLZ4nEib3K9ZXA4bVd7xbifU
+/// PDA derived: findProgramAddressSync([b"drp_authority"], DRP_PROGRAM_ID)
+/// Result: MG5mccsiGSx2GLRoyBG4aZvUSejPGTqChxzSXJ5kAGM (bump=255)
+///
+/// Mainnet Spore program: GQKhpugP3tECnV64WVQoBRQembMcaW35CDPpLzGTprrR
+pub const DRP_AUTHORITY: Pubkey = Pubkey::new_from_array([
+    5, 48, 171, 114, 42, 72, 243, 118,
+    147, 40, 10, 252, 5, 195, 93, 131,
+    33, 67, 75, 19, 88, 107, 105, 110,
+    97, 26, 14, 120, 173, 37, 75, 86,
+]);
+
 /// Mycelium Protocol — Spore Program
 /// IP Registration & Proof of Existence on Solana
 ///
@@ -446,7 +461,10 @@ pub struct UpdateStatus<'info> {
     )]
     pub ip_asset: Account<'info, IPAsset>,
     #[account(
-        constraint = authority.key() == ip_asset.creator @ MyceliumError::Unauthorized
+        constraint = (
+            authority.key() == ip_asset.creator
+            || authority.key() == DRP_AUTHORITY
+        ) @ MyceliumError::Unauthorized
     )]
     pub authority: Signer<'info>,
 }

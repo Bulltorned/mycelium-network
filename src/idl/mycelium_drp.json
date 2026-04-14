@@ -1,0 +1,168 @@
+{
+  "version": "0.1.0",
+  "name": "mycelium_drp",
+  "address": "BKrUCdqyVLywaT3WhLcKkLZ4nEib3K9ZXA4bVd7xbifU",
+  "instructions": [
+    {
+      "name": "initializeArbiterConfig",
+      "accounts": [
+        { "name": "arbiterConfig", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "addArbiter",
+      "accounts": [
+        { "name": "arbiterConfig", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "arbiter", "type": "publicKey" }
+      ]
+    },
+    {
+      "name": "removeArbiter",
+      "accounts": [
+        { "name": "arbiterConfig", "isMut": true, "isSigner": false },
+        { "name": "authority", "isMut": false, "isSigner": true }
+      ],
+      "args": [
+        { "name": "arbiter", "type": "publicKey" }
+      ]
+    },
+    {
+      "name": "fileDispute",
+      "accounts": [
+        { "name": "dispute", "isMut": true, "isSigner": false },
+        { "name": "ipAsset", "isMut": false, "isSigner": false },
+        { "name": "claimant", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "evidenceHashes", "type": { "vec": { "array": ["u8", 32] } } },
+        { "name": "similarityScore", "type": "u16" },
+        { "name": "matchType", "type": { "defined": "MatchType" } }
+      ]
+    },
+    {
+      "name": "resolveDispute",
+      "accounts": [
+        { "name": "dispute", "isMut": true, "isSigner": false },
+        { "name": "arbiter", "isMut": false, "isSigner": true },
+        { "name": "arbiterConfig", "isMut": false, "isSigner": false },
+        { "name": "ipAsset", "isMut": true, "isSigner": false },
+        { "name": "drpAuthority", "isMut": false, "isSigner": false },
+        { "name": "sporeProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "resolution", "type": { "defined": "Resolution" } }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Dispute",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "claimant", "type": "publicKey" },
+          { "name": "respondent", "type": "publicKey" },
+          { "name": "ipAsset", "type": "publicKey" },
+          { "name": "stage", "type": { "defined": "DisputeStage" } },
+          { "name": "evidenceHashes", "type": { "vec": { "array": ["u8", 32] } } },
+          { "name": "similarityScore", "type": "u16" },
+          { "name": "matchType", "type": { "defined": "MatchType" } },
+          { "name": "arbiter", "type": { "option": "publicKey" } },
+          { "name": "resolution", "type": { "option": { "defined": "Resolution" } } },
+          { "name": "filedSlot", "type": "u64" },
+          { "name": "deadlineSlot", "type": "u64" },
+          { "name": "resolvedSlot", "type": { "option": "u64" } },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "ArbiterConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "arbiters", "type": { "vec": "publicKey" } },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "DisputeStage",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "DirectResolution" },
+          { "name": "CommunityMediation" },
+          { "name": "ArbitrationPanel" },
+          { "name": "Resolved" }
+        ]
+      }
+    },
+    {
+      "name": "MatchType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Exact" },
+          { "name": "NearDuplicate" },
+          { "name": "Derivative" },
+          { "name": "Semantic" }
+        ]
+      }
+    },
+    {
+      "name": "Resolution",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "InFavorOfClaimant" },
+          { "name": "InFavorOfRespondent" },
+          { "name": "PartiallyUpheld" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "DisputeFiled",
+      "fields": [
+        { "name": "disputeKey", "type": "publicKey", "index": false },
+        { "name": "claimant", "type": "publicKey", "index": false },
+        { "name": "respondent", "type": "publicKey", "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "similarityScore", "type": "u16", "index": false },
+        { "name": "matchType", "type": { "defined": "MatchType" }, "index": false },
+        { "name": "filedSlot", "type": "u64", "index": false }
+      ]
+    },
+    {
+      "name": "DisputeResolved",
+      "fields": [
+        { "name": "disputeKey", "type": "publicKey", "index": false },
+        { "name": "arbiter", "type": "publicKey", "index": false },
+        { "name": "resolution", "type": { "defined": "Resolution" }, "index": false },
+        { "name": "ipAsset", "type": "publicKey", "index": false },
+        { "name": "resolvedSlot", "type": "u64", "index": false }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "UnauthorizedArbiter", "msg": "Arbiter not whitelisted" },
+    { "code": 6001, "name": "AlreadyResolved", "msg": "Dispute already resolved" },
+    { "code": 6002, "name": "TooManyEvidenceHashes", "msg": "Too many evidence hashes" },
+    { "code": 6003, "name": "InvalidSimilarityScore", "msg": "Invalid similarity score" },
+    { "code": 6004, "name": "Unauthorized", "msg": "Unauthorized" },
+    { "code": 6005, "name": "ArbiterListFull", "msg": "Arbiter list full" },
+    { "code": 6006, "name": "InvalidIPAsset", "msg": "Invalid IP asset account data" }
+  ]
+}

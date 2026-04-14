@@ -3,15 +3,24 @@ aliases: [Mycelium, Mycelium Protocol, Mycelium Network]
 tags: [moc, ip, web3, solana, protocol, active]
 entity: Mycelium-Network
 type: protocol
-parent: "[[INFIA/_Index]]"
+parent: "[[Holdings/INFIA/_Index]]"
 status: active
 chain: solana-devnet
 created: 2026-03-23
 ---
 
-# Mycelium Network — Decentralized IP Infrastructure
+# Mycelium Network — Programmable IP on Solana
 
-> Decentralized intellectual property infrastructure on Solana. Instant, verifiable, court-admissible proof of IP creation for < $0.01. The anti-WIPO.
+> INFIA's Programmable IP protocol on Solana. Instant, verifiable, court-admissible proof of IP creation for < $0.01. The anti-WIPO.
+
+## Status
+- **Phase:** active — devnet deployed, 4/4 programs built
+- **Priority:** 🟡 active — strategic Web3 infrastructure play
+- **Owner:** Aji Pratomo
+- **Revenue:** not yet — pre-mainnet, revenue model defined (registration fees, evidence packages, dispute resolution, API access)
+
+## Purpose (for Claude)
+> Mycelium Network is INFIA's Programmable IP protocol on Solana — the tech layer that makes all of INFIA's IP (Tahilalats, Hai Dudu, Dagelan, etc.) registrable, licensable, and enforceable on-chain for under $0.01. It's the "anti-WIPO" play: court-ready evidence in 8 jurisdictions, no token, Global South first. Any question about on-chain IP registration, programmable licensing, Solana programs, MCP/A2A agent interoperability for IP, or INFIA's Web3 strategy beyond EPIK references Mycelium. Key sensitivity: NKK control gap (§3 legal triage) directly affects which IPs can be registered through Mycelium — Tahilalats TM ownership must be resolved first.
 
 ## Status: ACTIVE — Devnet Deployed
 
@@ -46,9 +55,9 @@ created: 2026-03-23
 
 ## Key Documents
 
-- [[Mycelium Network/CLAUDE.md|CLAUDE.md — Full Engineering Context]]
-- [[Mycelium Network/docs/whitepaper.md|Protocol Whitepaper]]
-- [[Mycelium Network/README.md|README]]
+- [[Business-Units/Mycelium Network/CLAUDE.md|CLAUDE.md — Full Engineering Context]]
+- [[Business-Units/Mycelium Network/docs/whitepaper.md|Protocol Whitepaper]]
+- [[Business-Units/Mycelium Network/README.md|README]]
 
 ## Repository
 
@@ -96,9 +105,16 @@ created: 2026-03-23
 ## Related
 
 - [[_Home]] — Back to HQ
-- [[INFIA/_Index]] — Parent entity
-- [[EPIK/_Index]] — IP investment vehicle (potential synergy)
-- [[Global IP Company/_Index]] — Global IP benchmarks
-- [[Mindblowon Studio/_Index]] — IP source (Tahilalats, Hai Dudu)
-- [[IP-Partnerships/_Index]] — Licensing deal pipeline
-- [[Infia Network State/_Index]] — Network state thesis alignment
+- [[Holdings/INFIA/_Index]] — Parent entity
+- [[Business-Units/EPIK/_Index]] — IP investment vehicle (potential synergy)
+- [[Holdings/Global IP Company/_Index]] — Global IP benchmarks
+- [[Business-Units/Mindblowon Studio/_Index]] — IP source (Tahilalats, Hai Dudu)
+- [[Business-Units/IP-Partnerships/_Index]] — Licensing deal pipeline
+- [[Holdings/Infia Network State/_Index]] — Network state thesis alignment
+
+## Claude Notes
+> - Mycelium is architecturally complete (4 Solana programs) but blocked on mainnet by: (1) SOL funding for Spore deployment, (2) OtterSec audit not yet started, (3) no web app yet for non-technical users.
+> - The MCP server + A2A agent card make this uniquely positioned for agent-to-agent IP transactions — a moat Story Protocol doesn't have.
+> - Legal dependency: Tahilalats trademark registration (who owns it — Palik or IMS?) must be resolved before registering any Tahilalats IP through Mycelium. Same applies to any IP where chain-of-title is unclear. **Update (Mar 26):** NKK resolution expected within ~2 weeks — waiting for Lik Palik's return.
+> - Revenue model is conservative and token-free — good for institutional pitch but needs proof of demand. First evidence package validated by an IP law firm would be the unlock.
+> - Strategic overlap with EPIK (investment arm) and Global IP Company (benchmarks) — Mycelium could be the infrastructure layer both plug into.

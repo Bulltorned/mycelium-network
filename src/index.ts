@@ -15,8 +15,20 @@
  * TCP/IP describes but can't deliver through standard protocols. We plug into
  * the protocols that already won.
  *
+ * Environment variables:
+ * - MYCELIUM_AGENT_ID: Agent identity for wallet derivation (required in production)
+ * - MASTER_MNEMONIC: BIP-39 24-word seed for HD wallet derivation (enables persistent wallets)
+ * - MASTER_ENCRYPTION_KEY: 32-byte hex key for encrypting stored keypairs
+ * - DATABASE_URL: PostgreSQL connection string (required for persistent wallets and indexer)
+ * - SOLANA_LIVE: Set to "1" to use live Solana adapter
+ * - SOLANA_RPC_URL: Solana RPC endpoint
+ * - SOLANA_KEYPAIR_PATH: Authority keypair file path
+ * - HELIUS_API_KEY: Helius API key for webhook indexing
+ * - USDC_MINT: USDC token mint address (defaults to devnet)
+ *
  * Tools exposed:
- *   register_ip          — Register new IP asset (content hash → Solana PoH timestamp)
+ *   register_ip          — Register new IP asset (content hash -> Solana PoH timestamp)
+ *   get_ip               — Get details of a specific IP asset by pubkey
  *   search_ip            — Search the IP graph by text, type, creator, status
  *   check_license        — Verify if a wallet/agent holds valid license for content
  *   acquire_license      — Pay USDC and receive license token
@@ -42,11 +54,21 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { MockSolanaAdapter, type SolanaAdapter } from "./solana-adapter.js";
+import { SolanaLiveAdapter } from "./solana-live-adapter.js";
 import type { IPType, LicenseType, Jurisdiction } from "./types.js";
 
 // ── Server Initialization ────────────────────────────────────────────
 
-const adapter: SolanaAdapter = new MockSolanaAdapter();
+// Use live adapter when SOLANA_LIVE=1 or SOLANA_RPC_URL is set.
+// Otherwise fall back to mock for development.
+const useLive = process.env.SOLANA_LIVE === "1" || !!process.env.SOLANA_RPC_URL;
+const adapter: SolanaAdapter = useLive
+  ? new SolanaLiveAdapter()
+  : new MockSolanaAdapter();
+
+if (!useLive) {
+  console.error("[mycelium-mcp] Using MockSolanaAdapter (set SOLANA_LIVE=1 for devnet)");
+}
 
 const server = new McpServer(
   {
@@ -61,9 +83,16 @@ const server = new McpServer(
   }
 );
 
-// Agent identity: in production, extracted from OAuth token or DID.
-// For stdio transport, we use a default agent ID.
-const AGENT_ID = process.env.MYCELIUM_AGENT_ID ?? "default-agent";
+// Agent identity: resolved from MYCELIUM_AGENT_ID env var.
+// In production, each agent has a unique ID for BIP-44 wallet derivation.
+// Without this, all operations share one wallet (acceptable for local dev only).
+const agentIdEnv = process.env.MYCELIUM_AGENT_ID;
+if (!agentIdEnv) {
+  console.error(
+    "WARNING: MYCELIUM_AGENT_ID not set. Using 'default-agent' — all operations will share one wallet."
+  );
+}
+const AGENT_ID = agentIdEnv || "default-agent";
 
 // ── Enums as Zod literals for tool schemas ───────────────────────────
 
@@ -93,6 +122,64 @@ const derivativePolicyEnum = z.enum([
 // ═══════════════════════════════════════════════════════════════════════
 //  TOOLS — IP Operations
 // ═══════════════════════════════════════════════════════════════════════
+
+// ── get_ip ──────────────────────────────────────────────────────────
+
+server.tool(
+  "get_ip",
+  "Get details of a specific IP asset by its Solana pubkey. Returns the full " +
+  "on-chain record including content hash, creator, registration timestamp, " +
+  "license count, dispute count, and current status.",
+  {
+    pubkey: z.string().describe("Solana pubkey (base58) of the IP asset."),
+  },
+  async (args) => {
+    try {
+      const asset = await adapter.getIPAsset(args.pubkey);
+      if (!asset) {
+        return {
+          content: [{ type: "text" as const, text: `IP asset ${args.pubkey} not found in registry.` }],
+          isError: true,
+        };
+      }
+
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(
+              {
+                pubkey: asset.pubkey,
+                original_creator: asset.originalCreator,
+                creator: asset.creator,
+                content_hash: asset.contentHash,
+                perceptual_hash: asset.perceptualHash,
+                ip_type: asset.ipType,
+                metadata_uri: asset.metadataUri,
+                registration_slot: asset.registrationSlot,
+                registration_timestamp: asset.registrationTimestamp,
+                registered: new Date(asset.registrationTimestamp * 1000).toISOString(),
+                parent_ip: asset.parentIp,
+                status: asset.status,
+                license_count: asset.licenseCount,
+                dispute_count: asset.disputeCount,
+                version: asset.version,
+                solana_explorer: `https://explorer.solana.com/address/${asset.pubkey}?cluster=devnet`,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [{ type: "text" as const, text: `get_ip failed: ${(err as Error).message}` }],
+        isError: true,
+      };
+    }
+  }
+);
 
 // ── register_ip ──────────────────────────────────────────────────────
 
@@ -797,6 +884,95 @@ server.tool(
   }
 );
 
+// ── list_my_licenses ────────────────────────────────────────────────
+
+server.tool(
+  "list_my_licenses",
+  "List all licenses held by this agent. Returns license tokens with their " +
+  "associated IP assets, license types, acquisition dates, and validity status.",
+  {
+    valid_only: z.boolean().default(true).describe("If true, only return valid (non-expired, non-revoked) licenses."),
+    page: z.number().int().min(0).default(0),
+    page_size: z.number().int().min(1).max(100).default(20),
+  },
+  async (args) => {
+    try {
+      const wallet = await adapter.getOrCreateWallet(AGENT_ID);
+      const allAssets = await adapter.searchIP({ page: 0, pageSize: 1000 });
+
+      // Collect all licenses for all assets, then filter to ones held by this agent
+      const heldLicenses: Array<{
+        licenseToken: any;
+        licenseTemplate: any;
+        ipAsset: string;
+      }> = [];
+
+      for (const asset of allAssets.assets) {
+        const verification = await adapter.verifyLicense(
+          asset.pubkey,
+          wallet.solanaWallet
+        );
+        if (verification.licensed && verification.licenseToken) {
+          const templates = await adapter.listLicenses(asset.pubkey);
+          const template = templates.find(
+            (t) => t.pubkey === verification.licenseToken!.licenseTemplate
+          );
+          heldLicenses.push({
+            licenseToken: verification.licenseToken,
+            licenseTemplate: template,
+            ipAsset: asset.pubkey,
+          });
+        }
+      }
+
+      const filtered = args.valid_only
+        ? heldLicenses.filter((l) => l.licenseToken.valid)
+        : heldLicenses;
+
+      const page = args.page;
+      const pageSize = args.page_size;
+      const paged = filtered.slice(page * pageSize, (page + 1) * pageSize);
+
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(
+              {
+                total_licenses: filtered.length,
+                page,
+                licenses: paged.map((l) => ({
+                  license_token: l.licenseToken.pubkey,
+                  ip_asset: l.ipAsset,
+                  license_type: l.licenseTemplate?.licenseType ?? "unknown",
+                  commercial_use: l.licenseTemplate?.commercialUse ?? false,
+                  ai_training: l.licenseTemplate?.aiTraining ?? "unknown",
+                  acquired: new Date(
+                    l.licenseToken.acquiredTimestamp * 1000
+                  ).toISOString(),
+                  valid: l.licenseToken.valid,
+                })),
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: `License listing failed: ${(err as Error).message}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
 // ═══════════════════════════════════════════════════════════════════════
 //  RESOURCES — IP Asset Data
 // ═══════════════════════════════════════════════════════════════════════
@@ -941,9 +1117,9 @@ async function main() {
   await server.connect(transport);
   console.error("Mycelium MCP server running on stdio");
   console.error(`Agent ID: ${AGENT_ID}`);
-  console.error("Tools: register_ip, search_ip, check_license, acquire_license, " +
+  console.error("Tools: register_ip, get_ip, search_ip, check_license, acquire_license, " +
     "create_license, verify_provenance, check_similarity, generate_evidence, " +
-    "file_dispute, get_wallet, list_my_assets");
+    "file_dispute, get_wallet, list_my_assets, list_my_licenses (13 total)");
   console.error("Resources: ip://registry/stats, ip://asset/{pubkey}, " +
     "ip://license/{pubkey}, ip://provenance/{pubkey}");
 }

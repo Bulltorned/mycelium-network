@@ -1,6 +1,7 @@
 {
   "version": "0.1.0",
   "name": "mycelium_meridian",
+  "address": "2PBZSAN2LSoGHWsWmr6kFBtrVHicTvTHiZBF8Y4B54Le",
   "instructions": [
     {
       "name": "generateMep",

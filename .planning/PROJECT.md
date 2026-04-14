@@ -2,11 +2,11 @@
 
 ## What This Is
 
-Decentralized IP infrastructure on Solana — instant registration ($0.004, 400ms), programmable licensing, automated royalty distribution, and court-ready evidence packages. Four Anchor programs (Spore, Hypha, Rhizome, Meridian) exposed to AI agents via MCP server and to humans via Next.js frontend. Built as infrastructure for INFIA Group's 36+ IP portfolio and the broader Global South creator economy.
+Decentralized IP infrastructure on Solana — instant registration (~$0.40 at $85/SOL, 400ms), programmable licensing, automated royalty distribution, and court-ready evidence packages. Five Anchor programs (Spore, Hypha, Rhizome, Meridian, DRP) exposed to AI agents via MCP server and to humans via Next.js frontend. Built as infrastructure for INFIA Group's 36+ IP portfolio and the broader Global South creator economy.
 
 ## Core Value
 
-**Any creator, anywhere, can prove they made something first — for $0.004, in 400ms, with evidence that holds up in court.**
+**Any creator, anywhere, can prove they made something first — for ~$0.40 (~0.00474 SOL), in 400ms, with evidence that holds up in court.**
 
 Registration + PoH timestamping is the foundation. Everything else (licensing, royalties, evidence) builds on this.
 

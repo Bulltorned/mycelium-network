@@ -9,6 +9,14 @@ mycelium_hypha = "9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5"
 mycelium_meridian = "7LrekmiYZDKPBsaSBVaXUVG9iXtB164XQ5ntRVeiMnfc"
 mycelium_rhizome = "9HRqJ3toCnSBB3JQiMdCmoLg6qW5a6PdpwdHypRVBLNu"
 mycelium_spore = "AZGNVbxsnUmCi9CoEDrosJXnTK6xmujbutJsLTqXQyPz"
+mycelium_drp = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[programs.mainnet-beta]
+mycelium_spore = "GQKhpugP3tECnV64WVQoBRQembMcaW35CDPpLzGTprrR"
+mycelium_hypha = "BWaYdvceTLCR4T2E67C4uNrxxDQH5fDMDtL4kqdMPjuV"
+mycelium_rhizome = "7nKmtUgSaZTgF5fMcjQw1LR8nfKG8kgLauqAmtC3qJWW"
+mycelium_meridian = "2PBZSAN2LSoGHWsWmr6kFBtrVHicTvTHiZBF8Y4B54Le"
+mycelium_drp = "BKrUCdqyVLywaT3WhLcKkLZ4nEib3K9ZXA4bVd7xbifU"
 
 [registry]
 url = "https://api.apr.dev"

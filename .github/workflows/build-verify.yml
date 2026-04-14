@@ -1,0 +1,51 @@
+# Mycelium Protocol - CI Build & Verify
+#
+# Triggers on push to main and pull requests.
+# Builds all 5 programs using solana-developers/github-workflows with Docker-based
+# deterministic builds. Verifies bytecode matches but does NOT deploy.
+#
+# This compensates for Docker not being available locally -- all verifiable builds
+# happen in CI/CD via the reusable workflow's Docker environment.
+
+name: Build & Verify
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-verify:
+    name: Build ${{ matrix.program }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - program: mycelium_spore
+            program-id: "GQKhpugP3tECnV64WVQoBRQembMcaW35CDPpLzGTprrR"
+          - program: mycelium_hypha
+            program-id: "BWaYdvceTLCR4T2E67C4uNrxxDQH5fDMDtL4kqdMPjuV"
+          - program: mycelium_rhizome
+            program-id: "7nKmtUgSaZTgF5fMcjQw1LR8nfKG8kgLauqAmtC3qJWW"
+          - program: mycelium_meridian
+            program-id: "2PBZSAN2LSoGHWsWmr6kFBtrVHicTvTHiZBF8Y4B54Le"
+          - program: mycelium_drp
+            program-id: "BKrUCdqyVLywaT3WhLcKkLZ4nEib3K9ZXA4bVd7xbifU"
+
+    uses: solana-developers/github-workflows/.github/workflows/reusable-build.yaml@v0.2.9
+    with:
+      program: ${{ matrix.program }}
+      program-id: ${{ matrix.program-id }}
+      network: "mainnet"
+      deploy: false
+      verify: true
+    secrets:
+      # CI build-only -- no deployer keys needed.
+      # MAINNET_SOLANA_DEPLOY_URL is used for on-chain verification (comparing deployed bytecode).
+      # For PRs/pushes this can be a free RPC or omitted if verify is build-only.
+      MAINNET_SOLANA_DEPLOY_URL: ${{ secrets.MAINNET_SOLANA_DEPLOY_URL }}

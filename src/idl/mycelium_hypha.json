@@ -1,6 +1,7 @@
 {
   "version": "0.1.0",
   "name": "mycelium_hypha",
+  "address": "BWaYdvceTLCR4T2E67C4uNrxxDQH5fDMDtL4kqdMPjuV",
   "instructions": [
     {
       "name": "createLicenseTemplate",

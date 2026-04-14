@@ -158,9 +158,11 @@ export class MockSolanaAdapter implements SolanaAdapter {
   async registerIP(params: RegisterIPParams): Promise<RegisterIPResult> {
     const pubkey = this.genPubkey();
     const now = Date.now();
+    const wallet = (await this.getOrCreateWallet(params.agentId)).solanaWallet;
     const asset: IPAsset = {
       pubkey,
-      creator: (await this.getOrCreateWallet(params.agentId)).solanaWallet,
+      originalCreator: wallet,
+      creator: wallet,
       contentHash: params.contentHash,
       perceptualHash: params.perceptualHash,
       ipType: params.ipType,
@@ -172,6 +174,12 @@ export class MockSolanaAdapter implements SolanaAdapter {
       licenseCount: 0,
       disputeCount: 0,
       version: 1,
+      niceClass: null,
+      berneCategory: null,
+      countryOfOrigin: [0, 0],
+      firstUseDate: null,
+      wipoAligned: false,
+      bump: 0,
     };
     this.assets.set(pubkey, asset);
 

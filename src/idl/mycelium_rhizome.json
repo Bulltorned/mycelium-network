@@ -1,6 +1,7 @@
 {
   "version": "0.1.0",
   "name": "mycelium_rhizome",
+  "address": "7nKmtUgSaZTgF5fMcjQw1LR8nfKG8kgLauqAmtC3qJWW",
   "instructions": [
     {
       "name": "configureRoyalty",

@@ -1,6 +1,7 @@
 {
   "version": "0.1.0",
   "name": "mycelium_spore",
+  "address": "GQKhpugP3tECnV64WVQoBRQembMcaW35CDPpLzGTprrR",
   "instructions": [
     {
       "name": "registerIp",
