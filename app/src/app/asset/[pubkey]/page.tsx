@@ -68,7 +68,8 @@ export default function AssetDetailPage() {
       const program = new Program(sporeIdl as never, provider);
 
       try {
-        const account = await program.account.ipAsset.fetch(pk);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const account = await (program.account as any).ipAsset.fetch(pk);
         return anchorAccountToDisplay(account);
       } catch {
         return null;
