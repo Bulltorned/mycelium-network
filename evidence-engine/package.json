@@ -1,0 +1,36 @@
+{
+  "name": "@mycelium/evidence-engine",
+  "version": "0.1.0",
+  "description": "Generates Mycelium Evidence Packages (MEPs) — the Jakarta Protocol off-chain evidence layer",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./canonical-json": {
+      "import": "./dist/canonical-json.js",
+      "types": "./dist/canonical-json.d.ts"
+    },
+    "./jurisdiction": {
+      "import": "./dist/jurisdiction/index.js",
+      "types": "./dist/jurisdiction/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx --test tests/*.test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

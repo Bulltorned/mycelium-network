@@ -1,0 +1,234 @@
+{
+  "$schema": "https://jakarta-protocol.org/schema/mep/v1.0.json",
+  "mep_version": "1.0",
+  "package_hash": "sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+  "protocol_signature": "ed25519:a3b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+  "protocol_authority": "ed25519:d219410b3da7b566353be43d4177abdea764adf08d10f82af6bd9ee4720501ed",
+
+  "ip_asset": {
+    "chain": "solana-mainnet-beta",
+    "chain_network_id": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp6EDYgyZSxSXL",
+    "program_id": "GQKhpugP3tECnV64WVQoBRQembMcaW35CDPpLzGTprrR",
+    "pda_address": "9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5",
+    "pda_seeds": ["ip_asset", "<original_creator_pubkey>", "<content_hash>"],
+    "content_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "perceptual_hash_algorithm": "phash-256",
+    "perceptual_hash": "phash:a8f2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+    "registration_slot": 318745632,
+    "registration_timestamp_utc": "2026-04-19T07:32:14Z",
+    "ip_type": "CharacterIP",
+    "original_creator_pubkey": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+    "current_creator_pubkey": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+    "metadata_uri": "ar://5Tx2PQ3ZxqGKVw9nAbH7mRjL4cY8dE1fU6pW0sN3tBvK",
+    "arweave_manifest_block": 1456789,
+    "wipo_metadata": {
+      "nice_class": 41,
+      "nice_class_description": "Entertainment services; character merchandising",
+      "berne_category": 4,
+      "berne_category_description": "Artistic works (drawings, paintings, sculptures)",
+      "country_of_origin_iso3166": "ID",
+      "first_use_date_utc": "2014-06-15",
+      "additional_nice_classes": [16, 25, 28],
+      "title": "Tahilalats — Meme Character Universe",
+      "title_id": "Tahilalats — Semesta Karakter Meme",
+      "description": "Flagship character IP from INFIA Group. Comedy meme character series originating 2014 Jakarta, subsequently licensed across publishing (NC16), apparel (NC25), and toys (NC28). This MEP is generated for the master character IP; merchandise sub-licenses are recorded under derivative PDAs.",
+      "creator_identity_attestation": {
+        "legal_name": "PT Nura Kreasi Kreatif (NKK)",
+        "country": "Indonesia",
+        "business_id": "NKK-TM-2021-0042",
+        "verified_by": "DJKI-registered trademark certificate",
+        "verification_date": "2021-11-03"
+      }
+    }
+  },
+
+  "provenance": {
+    "@context": "https://www.w3.org/ns/prov",
+    "entity": {
+      "@id": "mycelium:ip:9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5",
+      "@type": "prov:Entity",
+      "prov:wasGeneratedBy": "mycelium:registration:318745632",
+      "prov:wasAttributedTo": "mycelium:creator:8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj"
+    },
+    "activity": {
+      "@id": "mycelium:registration:318745632",
+      "@type": "prov:Activity",
+      "prov:startedAtTime": "2026-04-19T07:32:14Z",
+      "prov:endedAtTime": "2026-04-19T07:32:14.398Z",
+      "prov:used": "mycelium:content:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "agent": {
+      "@id": "mycelium:creator:8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+      "@type": "prov:Agent",
+      "prov:actedOnBehalfOf": "NKK-TM-2021-0042"
+    },
+    "derivative_chain": [],
+    "parent_ip": null,
+    "derivatives_issued": [
+      {
+        "derivative_pda": "DRvJ8sK2mN3pQ4wX5yZ7aB8cE1hJ9sA0dU8gH2fL5vWj",
+        "derivative_type": "Merchandise",
+        "derivative_creator": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+        "registration_slot": 319000120,
+        "registration_timestamp_utc": "2026-04-20T11:22:47Z"
+      }
+    ]
+  },
+
+  "license_history": [
+    {
+      "license_pda": "L3xP7zK9mN2qR4sW6yV8aB0cE1hJ3kA5dU7gH9fL2vWj",
+      "template_pda": "T2wO6yJ8lM1pQ3rV5xU7aA9bE0hI2kZ4cT6gG8eK1uVi",
+      "licensor_pubkey": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+      "licensee_pubkey": "3kN8xL4mP2nQ5rT7wS9yV1bE3dF5gC6hA0iJ2kM4pR7u",
+      "licensee_name": "PT Kopi Nusantara Jaya",
+      "purpose": "Tahilalats character on coffee packaging, Indonesia region, 1-year term",
+      "license_type": "Commercial",
+      "royalty_rate_bps": 800,
+      "territory": {
+        "type": "Country",
+        "code": "ID"
+      },
+      "duration_seconds": 31536000,
+      "issued_at_utc": "2026-03-01T00:00:00Z",
+      "expires_at_utc": "2027-03-01T00:00:00Z",
+      "status": "Active",
+      "commercial_use": true,
+      "ai_training_allowed": false,
+      "max_sublicenses": 0,
+      "sublicense_count": 0,
+      "total_royalties_paid_lamports": 45000000
+    },
+    {
+      "license_pda": "L5qR9sT3uV7wY1aC4eH6jK8mN0pO2rS5xZ7bD9fG1iJ3",
+      "template_pda": "T2wO6yJ8lM1pQ3rV5xU7aA9bE0hI2kZ4cT6gG8eK1uVi",
+      "licensor_pubkey": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+      "licensee_pubkey": "7mP1qR4tS6vU8yX0aD2fH4jK6lN8oQ0rT2uW4xZ6bC8e",
+      "licensee_name": "ASEAN Content Alliance",
+      "purpose": "Character use in ASEAN digital content aggregator",
+      "license_type": "Commercial",
+      "royalty_rate_bps": 1000,
+      "territory": {
+        "type": "ASEAN"
+      },
+      "duration_seconds": 63072000,
+      "issued_at_utc": "2026-02-14T00:00:00Z",
+      "expires_at_utc": "2028-02-14T00:00:00Z",
+      "status": "Active",
+      "commercial_use": true,
+      "ai_training_allowed": false,
+      "max_sublicenses": 5,
+      "sublicense_count": 2,
+      "total_royalties_paid_lamports": 128000000
+    }
+  ],
+
+  "royalty_history": {
+    "config_pda": "RC2xP8zK4mN6qR0sW1yV3aB5cE7hJ9sA1dU3gH5fL7vXy",
+    "config_created_slot": 318745700,
+    "platform_fee_bps": 50,
+    "platform_wallet_pubkey": "MyceF33PgW4XLNnsSwQCvEfaiMKRnPHvVNxJqV7WXyZ",
+    "recipients": [
+      {
+        "wallet_pubkey": "8vKqM3nF5tRxY2wZ4pQ7bN6cE1hJ9sA0dU8gH2fL5vWj",
+        "share_bps": 8500,
+        "role": "Creator",
+        "label": "Palik (original creator)"
+      },
+      {
+        "wallet_pubkey": "5jKmN2pQ7rT4uV8wX1yZ3aB6cE9hI0lO4pR8sS2tA5eF",
+        "share_bps": 1000,
+        "role": "Creator",
+        "label": "PT NKK (business entity)"
+      },
+      {
+        "wallet_pubkey": "MyceF33PgW4XLNnsSwQCvEfaiMKRnPHvVNxJqV7WXyZ",
+        "share_bps": 500,
+        "role": "Platform",
+        "label": "Mycelium Network protocol fee"
+      }
+    ],
+    "total_deposited_lamports": 173000000,
+    "total_distributed_lamports": 173000000,
+    "distribution_count": 6,
+    "last_distribution_slot": 319145220,
+    "last_distribution_timestamp_utc": "2026-04-18T14:22:10Z"
+  },
+
+  "dispute_history": [],
+
+  "jurisdiction_format": {
+    "target_jurisdiction": "Indonesia",
+    "legal_basis": [
+      "Undang-Undang Nomor 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik, Pasal 5",
+      "Putusan Mahkamah Konstitusi Nomor 20/PUU-XIV/2016",
+      "Undang-Undang Nomor 28 Tahun 2014 tentang Hak Cipta",
+      "Undang-Undang Nomor 20 Tahun 2016 tentang Merek dan Indikasi Geografis"
+    ],
+    "language": "id-ID",
+    "court_format": "Pengadilan Niaga Jakarta Pusat",
+    "expert_witness_declaration_included": true,
+    "verification_instructions_included": true,
+    "notarization_guidance_included": true,
+    "expert_witness_statement_arweave_uri": "ar://9AzY3xQ7pK2wM5nR8vL4uP1oT6sE0hJ3kB9dF7gC5iV"
+  },
+
+  "verification": {
+    "explorer_urls": {
+      "ip_asset": "https://explorer.solana.com/address/9tB3hfhMfHxr6cPjikpPn8y9zVvXLFzEX7NDHAWYodj5?cluster=mainnet-beta",
+      "registration_transaction": "https://explorer.solana.com/tx/<tx_signature>?cluster=mainnet-beta",
+      "royalty_config": "https://explorer.solana.com/address/RC2xP8zK4mN6qR0sW1yV3aB5cE7hJ9sA1dU3gH5fL7vXy?cluster=mainnet-beta"
+    },
+    "arweave_urls": {
+      "content_metadata": "https://arweave.net/5Tx2PQ3ZxqGKVw9nAbH7mRjL4cY8dE1fU6pW0sN3tBvK",
+      "full_mep_document": "https://arweave.net/<this_document_tx_id>",
+      "expert_witness_statement": "https://arweave.net/9AzY3xQ7pK2wM5nR8vL4uP1oT6sE0hJ3kB9dF7gC5iV"
+    },
+    "reproduction_steps": [
+      {
+        "step": 1,
+        "action": "Open ip_asset explorer_url in any browser",
+        "expected": "Confirm registration_slot = 318745632 and registration_timestamp_utc matches on-chain data"
+      },
+      {
+        "step": 2,
+        "action": "Open content_metadata Arweave URL and download the returned bytes",
+        "expected": "Content retrievable; file is binary deterministic"
+      },
+      {
+        "step": 3,
+        "action": "Compute SHA-256 of the downloaded bytes using any standard library (sha256sum, Python hashlib, JS crypto.subtle)",
+        "expected": "Computed hash equals ip_asset.content_hash field"
+      },
+      {
+        "step": 4,
+        "action": "Verify protocol_signature against protocol_authority using Ed25519 (RFC 8032)",
+        "expected": "Valid signature — the message signed is the package_hash of this document"
+      },
+      {
+        "step": 5,
+        "action": "Serialise this entire MEP document in canonical JSON with package_hash field set to empty string, then SHA-256",
+        "expected": "Computed hash equals package_hash field value"
+      }
+    ],
+    "estimated_verification_time_minutes": 12,
+    "required_tools": ["web browser", "sha256sum utility OR any scripting language with SHA-256"],
+    "required_specialist_knowledge": "None. Verification is designed for a non-technical judge."
+  },
+
+  "package_metadata": {
+    "generated_at_utc": "2026-04-19T07:35:00Z",
+    "generated_by_agent": "mycelium-meridian-v1.0.0",
+    "generated_by_wallet": "MER5M3niH4DwK2rLpN8sP1qR6vT0uS9yX3aB5cE7fH9jJ",
+    "generation_cost_lamports": 4820000,
+    "superseded_by": null,
+    "superseded_at_utc": null,
+    "version_number": 1,
+    "total_on_chain_verifications": 0
+  },
+
+  "disclaimer": {
+    "en": "This Mycelium Evidence Package is supplementary electronic evidence under the Jakarta Protocol v1.0. It does not confer statutory intellectual property rights. Statutory rights arise from national trademark, copyright, and patent registries. This MEP asserts, with cryptographic integrity, the facts about creation, licensing, and royalty distribution recorded at the Solana slot referenced herein.",
+    "id": "Paket Bukti Mycelium ini merupakan bukti elektronik pelengkap berdasarkan Protokol Jakarta v1.0. Paket ini tidak memberikan hak kekayaan intelektual statutoris. Hak statutoris timbul dari pendaftaran merek, hak cipta, dan paten nasional. MEP ini menegaskan, dengan integritas kriptografis, fakta-fakta tentang penciptaan, lisensi, dan distribusi royalti yang tercatat pada slot Solana yang dirujuk di sini."
+  }
+}
