@@ -5,50 +5,121 @@
 @import "@solana/wallet-adapter-react-ui/styles.css";
 
 :root {
-  --foreground: #e2e8f0;
-  --background: #0a0a0f;
-  --card: #111118;
-  --card-border: #1e1e2e;
-  --accent: #22c55e;
-  --accent-dim: #16a34a;
-  --muted: #64748b;
+  --bg: #0B0E12;
+  --bg-elevated: #14181E;
+  --surface: #181D24;
+  --border: #1F252D;
+  --border-strong: #2A323D;
+
+  --text: #E6EAF0;
+  --text-dim: #B3BCC9;
+  --text-muted: #737F8F;
+
+  --accent: #3EE08E;
+  --accent-dim: #2FB673;
+  --gold: #E6B35E;
+  --gold-dim: #B88A3F;
+  --danger: #E06565;
+
+  /* font vars --sans/--serif/--mono are set by next/font on the html element.
+     Do NOT declare fallbacks here — they would override next/font's bindings. */
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--sans);
+  font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Wallet adapter button overrides */
+h1, h2, h3, .serif {
+  font-family: var(--serif);
+  font-feature-settings: "ss01";
+  letter-spacing: -0.015em;
+}
+
+.font-mono {
+  font-family: var(--mono);
+}
+
+/* Wallet adapter overrides — institutional, not crypto-garish */
 .wallet-adapter-button {
-  background-color: var(--accent) !important;
-  border-radius: 8px !important;
-  font-size: 14px !important;
-  height: 40px !important;
+  background-color: var(--text) !important;
+  color: var(--bg) !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  font-family: var(--sans) !important;
 }
 
 .wallet-adapter-button:hover {
-  background-color: var(--accent-dim) !important;
+  background-color: var(--text-dim) !important;
 }
 
 .wallet-adapter-modal-wrapper {
-  background-color: var(--card) !important;
+  background-color: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
 }
 
-/* Scrollbar */
+.wallet-adapter-modal-title {
+  color: var(--text) !important;
+  font-family: var(--serif) !important;
+}
+
+/* Scrollbar — thin, subtle */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--border-strong);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
 
-/* Glow effect for cards */
-.glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Utility classes */
+.container-xl {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.divider-subtle {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+}
+
+/* Subtle paper-like texture for institutional feel */
+.paper-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0);
+  background-size: 24px 24px;
 }

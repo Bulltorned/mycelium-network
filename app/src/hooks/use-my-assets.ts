@@ -64,7 +64,8 @@ export function useMyAssets() {
 
       // Fetch all IPAsset accounts filtered by creator (current owner).
       // Offset: 8 (discriminator) + 32 (original_creator) = 40 is where creator starts.
-      const accounts = await program.account.ipAsset.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const accounts = await (program.account as any).ipAsset.all([
         {
           memcmp: {
             offset: 8 + 32,
@@ -74,7 +75,8 @@ export function useMyAssets() {
       ]);
 
       return accounts
-        .map((acc) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((acc: any) =>
           anchorAccountToDisplayAsset(acc.publicKey.toBase58(), acc.account)
         )
         .sort(
