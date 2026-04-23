@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { PublicKey, Keypair } from "@solana/web3.js";
-import { Program, AnchorProvider, Wallet } from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
+import type { Program as ProgramT, AnchorProvider as AnchorProviderT } from "@coral-xyz/anchor";
+const { Program, AnchorProvider, Wallet } = anchor;
 import { shortenPubkey, formatDate, formatSlot, explorerUrl } from "@/lib/format";
 import {
   IP_TYPE_LABELS,
@@ -65,7 +67,7 @@ export default function AssetDetailPage() {
       const provider = new AnchorProvider(connection, dummyWallet, {
         commitment: "confirmed",
       });
-      const program = new Program(sporeIdl as never, provider);
+      const program = new Program(sporeIdl as any, provider);
 
       try {
         const account = await program.account.ipAsset.fetch(pk);

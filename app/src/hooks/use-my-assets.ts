@@ -2,7 +2,9 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
+import type { Program as ProgramT, AnchorProvider as AnchorProviderT } from "@coral-xyz/anchor";
+const { Program, AnchorProvider } = anchor;
 import { PROGRAM_IDS } from "@/lib/constants";
 import {
   DisplayIPAsset,
@@ -57,10 +59,10 @@ export function useMyAssets() {
       // but AnchorProvider requires a wallet interface.
       const provider = new AnchorProvider(
         connection,
-        wallet?.adapter as never,
+        wallet?.adapter as any,
         { commitment: "confirmed" }
       );
-      const program = new Program(sporeIdl as never, provider);
+      const program = new Program(sporeIdl as any, provider);
 
       // Fetch all IPAsset accounts filtered by creator (current owner).
       // Offset: 8 (discriminator) + 32 (original_creator) = 40 is where creator starts.

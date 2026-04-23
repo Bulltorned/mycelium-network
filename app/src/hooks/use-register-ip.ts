@@ -3,7 +3,9 @@
 import { useCallback, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
+import type { Program as ProgramT, AnchorProvider as AnchorProviderT } from "@coral-xyz/anchor";
+const { Program, AnchorProvider } = anchor;
 import { findIPAssetPDA, findContentHashRegistryPDA } from "@/lib/pda";
 import { IPTypeKey, toAnchorEnum } from "@/lib/types";
 import sporeIdl from "@/lib/idl/mycelium_spore.json";
@@ -44,10 +46,10 @@ export function useRegisterIP() {
         // Create Anchor provider and program for building the transaction
         const provider = new AnchorProvider(
           connection,
-          wallet.adapter as never,
+          wallet.adapter as any,
           { commitment: "confirmed" }
         );
-        const program = new Program(sporeIdl as never, provider);
+        const program = new Program(sporeIdl as any, provider);
 
         const countryBytes = Array.from(
           Buffer.from(params.countryOfOrigin.slice(0, 2), "ascii")
