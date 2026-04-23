@@ -66,7 +66,7 @@ export function useMyAssets() {
 
       // Fetch all IPAsset accounts filtered by creator (current owner).
       // Offset: 8 (discriminator) + 32 (original_creator) = 40 is where creator starts.
-      const accounts = await program.account.ipAsset.all([
+      const accounts = await (program.account as any).ipAsset.all([
         {
           memcmp: {
             offset: 8 + 32,

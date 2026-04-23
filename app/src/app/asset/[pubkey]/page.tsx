@@ -70,7 +70,7 @@ export default function AssetDetailPage() {
       const program = new Program(sporeIdl as any, provider);
 
       try {
-        const account = await program.account.ipAsset.fetch(pk);
+        const account = await (program.account as any).ipAsset.fetch(pk);
         return anchorAccountToDisplay(account);
       } catch {
         return null;
