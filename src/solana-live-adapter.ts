@@ -33,7 +33,9 @@ import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
+import type { Program as ProgramT, AnchorProvider as AnchorProviderT } from "@coral-xyz/anchor";
+const { Program, AnchorProvider, Wallet, BN } = anchor;
 import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
 import { resolve } from "path";
@@ -396,18 +398,18 @@ function anchorAccountToLicenseToken(
 export class SolanaLiveAdapter implements SolanaAdapter {
   private connection: Connection;
   private payer: Keypair;
-  private provider: AnchorProvider;
+  private provider: AnchorProviderT;
   private heliusApiKey: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private sporeProgram: Program<any>;
+  private sporeProgram: ProgramT<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private hyphaProgram: Program<any>;
+  private hyphaProgram: ProgramT<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private rhizomeProgram: Program<any>;
+  private rhizomeProgram: ProgramT<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private meridianProgram: Program<any>;
+  private meridianProgram: ProgramT<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private drpProgram: Program<any>;
+  private drpProgram: ProgramT<any>;
 
   // In-memory cache for agent wallets (production: use a database)
   private agentWallets: Map<string, AgentWallet> = new Map();
