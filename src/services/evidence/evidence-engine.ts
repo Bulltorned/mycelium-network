@@ -24,7 +24,8 @@ import {
   SystemProgram,
   SYSVAR_INSTRUCTIONS_PUBKEY,
 } from "@solana/web3.js";
-import { BN } from "@coral-xyz/anchor";
+import anchor from "@coral-xyz/anchor";
+const { BN } = anchor;
 
 import { assembleMEP, JURISDICTION_MAP, WIPO_JURISDICTION_KEY } from "./mep-assembler.js";
 import type { MEPDocument } from "./mep-assembler.js";
